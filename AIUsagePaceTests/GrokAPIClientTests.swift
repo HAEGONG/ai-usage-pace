@@ -29,6 +29,26 @@ final class GrokAPIClientTests: XCTestCase {
         XCTAssertEqual(snapshot.providerID, "grok")
     }
 
+    func testRequestUsesCreditsEndpointAndAuthHeaders() async throws {
+        let stub = GrokStubHTTPClient(statusCode: 204, body: Data())
+        let client = GrokAPIClient(http: stub)
+
+        // 204 maps to usageUnavailable; we only care that the request was built
+        // correctly before the response was handled.
+        _ = try? await client.fetchSnapshot(session: .accountGrok, now: Date())
+
+        let request = try XCTUnwrap(stub.capturedRequest)
+        XCTAssertEqual(request.url, GrokAPIClient.billingURL)
+        XCTAssertEqual(request.url?.absoluteString, "https://cli-chat-proxy.grok.com/v1/billing?format=credits")
+        XCTAssertEqual(request.httpMethod, "GET")
+        XCTAssertEqual(
+            request.value(forHTTPHeaderField: "Authorization"),
+            "Bearer \(GrokSession.accountGrok.accessToken)"
+        )
+        XCTAssertEqual(request.value(forHTTPHeaderField: "X-XAI-Token-Auth"), "xai-grok-cli")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Accept"), "application/json")
+    }
+
     private func assertStatus(_ status: Int, throws expected: AppError) async {
         let client = GrokAPIClient(http: GrokStubHTTPClient(statusCode: status, body: Data()))
         await assertAppError(
@@ -52,11 +72,18 @@ final class GrokAPIClientTests: XCTestCase {
     }
 }
 
-private struct GrokStubHTTPClient: HTTPClient {
-    var statusCode: Int
-    var body: Data
+private final class GrokStubHTTPClient: HTTPClient, @unchecked Sendable {
+    let statusCode: Int
+    let body: Data
+    private(set) var capturedRequest: URLRequest?
+
+    init(statusCode: Int, body: Data) {
+        self.statusCode = statusCode
+        self.body = body
+    }
 
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+        capturedRequest = request
         let response = HTTPURLResponse(
             url: request.url ?? GrokAPIClient.billingURL,
             statusCode: statusCode,
