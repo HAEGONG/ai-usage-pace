@@ -1,6 +1,6 @@
 import Foundation
 
-enum UsagePoolID: String, Codable, Sendable {
+enum UsagePoolID: String, Codable, Sendable, CaseIterable {
     case cursorModels
     case otherModels
     case grokBotWeekly
@@ -16,6 +16,19 @@ enum UsagePoolID: String, Codable, Sendable {
             "Grok Bot"
         case .grokWeekly:
             "Grok CLI"
+        }
+    }
+
+    var titleLocalizationKey: String {
+        switch self {
+        case .cursorModels:
+            LocalizationKey.usageCursorModels
+        case .otherModels:
+            LocalizationKey.usageOtherModels
+        case .grokBotWeekly:
+            LocalizationKey.usageGrokBot
+        case .grokWeekly:
+            LocalizationKey.usageGrokCLI
         }
     }
 
@@ -180,9 +193,22 @@ enum UsagePercentFormat {
         }
         return String(format: "%.1f%%", roundedToTenth)
     }
+
+    static func string(_ percentUsed: Double, locale: Locale) -> String {
+        let roundedToTenth = (percentUsed * 10).rounded() / 10
+        let formatter = NumberFormatter()
+        formatter.locale = locale
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = roundedToTenth == roundedToTenth.rounded(.towardZero) ? 0 : 1
+        formatter.maximumFractionDigits = 1
+        let value = formatter.string(from: NSNumber(value: roundedToTenth)) ?? string(percentUsed)
+        return "\(value)%"
+    }
 }
 
 extension UsageSnapshot {
+    static let defaultMenuBarTitle = "Usage Pace"
+
     var highlightedBucket: UsageBucket? {
         Self.highlightedBucket(from: buckets.map { ($0, nil) })
     }
@@ -195,15 +221,32 @@ extension UsageSnapshot {
         Self.menuBarTitle(from: buckets.map { ($0, stats?.paceRatio(for: $0.id)) })
     }
 
+    func menuBarTitle(stats: UsageStats?, locale: Locale) -> String {
+        Self.menuBarTitle(
+            from: buckets.map { ($0, stats?.paceRatio(for: $0.id)) },
+            locale: locale
+        )
+    }
+
     func highlightedBucket(stats: UsageStats?) -> UsageBucket? {
         Self.highlightedBucket(from: buckets.map { ($0, stats?.paceRatio(for: $0.id)) })
     }
 
     static func menuBarTitle(from candidates: [(UsageBucket, Double?)]) -> String {
         guard let bucket = highlightedBucket(from: candidates) else {
-            return "Usage Pace"
+            return defaultMenuBarTitle
         }
         return "\(bucket.id.menuBarPrefix) \(UsagePercentFormat.string(bucket.percentUsed))"
+    }
+
+    static func menuBarTitle(
+        from candidates: [(UsageBucket, Double?)],
+        locale: Locale
+    ) -> String {
+        guard let bucket = highlightedBucket(from: candidates) else {
+            return defaultMenuBarTitle
+        }
+        return "\(bucket.id.menuBarPrefix) \(UsagePercentFormat.string(bucket.percentUsed, locale: locale))"
     }
 
     static func highlightedBucket(from candidates: [(UsageBucket, Double?)]) -> UsageBucket? {

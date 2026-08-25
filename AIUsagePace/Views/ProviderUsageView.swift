@@ -3,6 +3,7 @@ import SwiftUI
 struct ProviderUsageView: View {
     let snapshot: UsageSnapshot
     var stats: UsageStats?
+    @Environment(\.locale) private var locale
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -23,12 +24,29 @@ struct ProviderUsageView: View {
     }
 
     private func poolErrorView(pool: UsagePoolID, error: AppError) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("\(pool.title): \(error.localizedDescription)")
+        let poolTitle = AppLocalization.string(
+            for: pool.titleLocalizationKey,
+            locale: locale,
+            defaultValue: pool.title
+        )
+        let errorDescription = AppLocalization.string(
+            for: error.errorDescriptionLocalizationKey,
+            locale: locale,
+            defaultValue: error.errorDescription ?? ""
+        )
+        let message = AppLocalization.format(
+            LocalizationKey.usagePoolError,
+            locale: locale,
+            arguments: [poolTitle, errorDescription],
+            defaultValue: "%1$@: %2$@"
+        )
+
+        return VStack(alignment: .leading, spacing: 4) {
+            Text(verbatim: message)
                 .foregroundStyle(.red)
                 .font(.callout)
-            if let recovery = error.recoverySuggestion {
-                Text(recovery)
+            if let recoveryKey = error.recoverySuggestionLocalizationKey {
+                Text(LocalizedStringKey(recoveryKey))
                     .foregroundStyle(.secondary)
                     .font(.caption)
             }
@@ -39,34 +57,40 @@ struct ProviderUsageView: View {
 private struct PoolUsageRow: View {
     let bucket: UsageBucket
     var stats: PoolStats?
+    @Environment(\.locale) private var locale
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(bucket.id.title)
+                Text(LocalizedStringKey(bucket.id.titleLocalizationKey))
                     .font(.headline)
                 Spacer()
-                Text(UsagePercentFormat.string(bucket.percentUsed))
+                Text(verbatim: UsagePercentFormat.string(bucket.percentUsed, locale: locale))
                     .font(.headline)
                     .monospacedDigit()
             }
             ProgressView(value: bucket.progressFraction)
-            metric("Today", todayText)
-            metric("Pace", paceText)
-            metric("Exhaustion", exhaustionText)
+            metric(LocalizationKey.usageUsedToday, todayText)
+            metric(LocalizationKey.usagePace, paceText)
+            metric(LocalizationKey.usageRunsOut, exhaustionText)
             if let cycleEnd = bucket.cycleEnd {
-                metric("Reset", cycleEnd.formatted(date: .abbreviated, time: .shortened))
+                metric(LocalizationKey.usageResets, AppLocalization.dateTime(cycleEnd, locale: locale))
             }
         }
     }
 
     private var todayText: String {
         guard let delta = stats?.todayDelta else {
-            return "Not enough data"
+            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
         }
-        let value = String(format: "%+.1f%%", delta)
+        let value = signedDecimal(delta)
         if stats?.todayIsSinceFirstRecord == true {
-            return "\(value) since first record today"
+            return AppLocalization.format(
+                LocalizationKey.usageSinceFirstCheckToday,
+                locale: locale,
+                arguments: [value],
+                defaultValue: "%@ since first check today"
+            )
         }
         return value
     }
@@ -74,45 +98,68 @@ private struct PoolUsageRow: View {
     private var paceText: String {
         switch stats?.message {
         case .atLimit:
-            return "At limit"
+            return localized(LocalizationKey.usageAtLimit, defaultValue: "At limit")
         case .resetPending:
-            return "Reset pending"
+            return localized(LocalizationKey.usageWaitingForReset, defaultValue: "Waiting for reset")
         case .notEnoughData, nil:
-            return "Not enough data"
+            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
         case .ready, .resetsBeforeExhaustion, .noExhaustionProjected:
             if let ratio = stats?.paceRatio {
-                let text = String(format: "%.1f×", ratio)
-                return stats?.lowConfidence == true ? "\(text) (low confidence)" : text
+                let value = AppLocalization.decimal(ratio, fractionDigits: 1, locale: locale) + "×"
+                if stats?.lowConfidence == true {
+                    return AppLocalization.format(
+                        LocalizationKey.usageLowConfidence,
+                        locale: locale,
+                        arguments: [value],
+                        defaultValue: "%@ (low confidence)"
+                    )
+                }
+                return value
             }
-            return "Not enough data"
+            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
         }
     }
 
     private var exhaustionText: String {
         switch stats?.message {
         case .atLimit:
-            return "At limit"
+            return localized(LocalizationKey.usageAtLimit, defaultValue: "At limit")
         case .resetPending:
-            return "Reset pending"
+            return localized(LocalizationKey.usageWaitingForReset, defaultValue: "Waiting for reset")
         case .resetsBeforeExhaustion:
-            return "Will likely reset before exhaustion"
+            return localized(
+                LocalizationKey.usageLikelyWontRunOut,
+                defaultValue: "Likely won't run out before reset"
+            )
         case .noExhaustionProjected:
-            return "No exhaustion projected"
+            return localized(
+                LocalizationKey.usageNotExpectedToRunOut,
+                defaultValue: "Not expected to run out"
+            )
         case .notEnoughData, nil:
-            return "Not enough data"
+            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
         case .ready:
             if let date = stats?.exhaustionAt {
-                return date.formatted(date: .abbreviated, time: .shortened)
+                return AppLocalization.dateTime(date, locale: locale)
             }
-            return "Not enough data"
+            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
         }
     }
 
-    private func metric(_ title: String, _ value: String) -> some View {
+    private func localized(_ key: String, defaultValue: String) -> String {
+        AppLocalization.string(for: key, locale: locale, defaultValue: defaultValue)
+    }
+
+    private func signedDecimal(_ value: Double) -> String {
+        let sign = value >= 0 ? "+" : "-"
+        return sign + AppLocalization.decimal(abs(value), fractionDigits: 1, locale: locale) + "%"
+    }
+
+    private func metric(_ titleKey: String, _ value: String) -> some View {
         HStack {
-            Text(title)
+            Text(LocalizedStringKey(titleKey))
             Spacer()
-            Text(value)
+            Text(verbatim: value)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.trailing)
         }

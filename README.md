@@ -56,6 +56,8 @@ macOS 14 이상과 Xcode 16 이상이 필요합니다. 외부 Swift Package Mana
 1. Cursor 앱에서 로그인하거나 `grok login`을 실행하여 사용할 서비스에 로그인합니다. 두 서비스를 모두 사용할 수도 있습니다.
 2. Xcode에서 `AIUsagePace.xcodeproj`를 열고 `AIUsagePace` 스킴을 선택한 뒤 앱을 실행합니다.
 
+메뉴 막대의 `Settings…`에서 `Language`를 `System Default`, `English`, `한국어` 중에서 선택할 수 있습니다. 선택한 언어는 메뉴 막대, 사용량 지표, 오류 및 복구 안내, 설정 화면, 날짜와 숫자 표시에 즉시 적용되며 `appLanguage` 설정으로 저장됩니다. `System Default`에서는 시스템 언어가 한국어일 때 한국어를 사용하고, 그 외에는 영어를 사용합니다.
+
 다음 명령어로 테스트를 실행할 수 있습니다.
 
 ```bash
@@ -69,6 +71,6 @@ xcodebuild -project AIUsagePace.xcodeproj -scheme AIUsagePace -destination 'plat
 
 Xcode 콘솔에 나타나는 `com.apple.linkd.autoShortcut`과 `Error registering app with intents framework` 메시지는 사용량 조회 오류가 아닙니다. 이 메시지는 로컬 실행 환경에서 macOS가 App Intents 및 단축어를 자동으로 등록하는 과정에서 나타날 수 있습니다. AI Usage Pace는 App Intents를 사용하지 않으므로 메뉴 막대 기능이 정상적으로 작동한다면 이 메시지를 무시해도 됩니다.
 
-앱을 처음 실행한 뒤 몇 시간 동안은 분석할 이력이 충분하지 않아서 `Today`, `Pace`, `Exhaustion` 항목에 `Not enough data`가 표시될 수 있습니다. 앱은 15분마다 사용량을 갱신하며, Mac이 잠자기 상태에서 깨어나거나 사용자가 `Refresh`를 선택했을 때도 사용량을 갱신합니다.
+앱을 처음 실행한 뒤 몇 시간 동안은 분석할 이력이 충분하지 않아서 `Used today`, `Usage pace`, `Runs out` 항목에 `Collecting data…`가 표시될 수 있습니다. 앱은 15분마다 사용량을 갱신하며, Mac이 잠자기 상태에서 깨어나거나 사용자가 `Refresh`를 선택했을 때도 사용량을 갱신합니다.
 
 메뉴 막대에는 권장 속도 대비 실제 사용 속도의 비율이 가장 높은 사용량 풀이 표시됩니다. 이 비율을 계산할 수 없는 경우에는 현재 사용률이 가장 높은 풀을 표시합니다. `C`, `O`, `B`, `G`는 각각 Cursor Models, Other Models, Grok Bot, Grok CLI를 의미합니다.

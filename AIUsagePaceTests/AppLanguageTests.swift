@@ -1,0 +1,163 @@
+import XCTest
+@testable import AIUsagePace
+
+final class AppLanguageTests: XCTestCase {
+    @MainActor
+    func testRawValuesAndLocaleResolution() {
+        XCTAssertEqual(AppLanguage.system.rawValue, "system")
+        XCTAssertEqual(AppLanguage.english.rawValue, "en")
+        XCTAssertEqual(AppLanguage.korean.rawValue, "ko")
+
+        XCTAssertEqual(AppLanguage.english.locale().language.languageCode?.identifier, "en")
+        XCTAssertEqual(AppLanguage.korean.locale().language.languageCode?.identifier, "ko")
+        XCTAssertEqual(
+            AppLanguage.system.locale(systemLocale: Locale(identifier: "ko-KR")).language.languageCode?.identifier,
+            "ko"
+        )
+        XCTAssertEqual(
+            AppLanguage.system.locale(systemLocale: Locale(identifier: "fr-FR")).language.languageCode?.identifier,
+            "en"
+        )
+    }
+
+    @MainActor
+    func testLanguageSettingsDefaultsAndPersistsSelection() {
+        let suiteName = "AIUsagePace.AppLanguageTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let settings = LanguageSettings(defaults: defaults)
+        XCTAssertEqual(settings.selection, .system)
+        XCTAssertEqual(defaults.string(forKey: AppLanguage.storageKey), "system")
+
+        settings.selection = .korean
+        XCTAssertEqual(defaults.string(forKey: AppLanguage.storageKey), "ko")
+        XCTAssertEqual(LanguageSettings(defaults: defaults).selection, .korean)
+
+        defaults.set("not-supported", forKey: AppLanguage.storageKey)
+        XCTAssertEqual(LanguageSettings(defaults: defaults).selection, .system)
+        XCTAssertEqual(defaults.string(forKey: AppLanguage.storageKey), "system")
+    }
+
+    func testCatalogContainsReferencedKeysInEnglishAndKorean() {
+        let bundle = Bundle(for: AppLanguageTests.self)
+        let keys = [
+            LocalizationKey.settingsRefresh,
+            LocalizationKey.settingsRefreshDescription,
+            LocalizationKey.settingsDataSources,
+            LocalizationKey.settingsCursorDescription,
+            LocalizationKey.settingsGrokBotDescription,
+            LocalizationKey.settingsGrokCLIDescription,
+            LocalizationKey.settingsPrivacy,
+            LocalizationKey.settingsPrivacyDescription,
+            LocalizationKey.settingsHistoryDescription,
+            LocalizationKey.settingsAbout,
+            LocalizationKey.settingsAboutDescription,
+            LocalizationKey.settingsLanguage,
+            LocalizationKey.settingsLanguageSystem,
+            LocalizationKey.settingsLanguageEnglish,
+            LocalizationKey.settingsLanguageKorean,
+            LocalizationKey.menuLoadingUsage,
+            LocalizationKey.menuRefresh,
+            LocalizationKey.menuSettings,
+            LocalizationKey.menuQuit,
+            LocalizationKey.menuUsagePace,
+            LocalizationKey.menuShowingLastAvailableUsage,
+            LocalizationKey.menuUpdated,
+            LocalizationKey.providerCursor,
+            LocalizationKey.providerGrokCLI,
+            LocalizationKey.usageCursorModels,
+            LocalizationKey.usageOtherModels,
+            LocalizationKey.usageGrokBot,
+            LocalizationKey.usageGrokCLI,
+            LocalizationKey.usagePoolError,
+            LocalizationKey.usageUsedToday,
+            LocalizationKey.usagePace,
+            LocalizationKey.usageRunsOut,
+            LocalizationKey.usageResets,
+            LocalizationKey.usageCollectingData,
+            LocalizationKey.usageAtLimit,
+            LocalizationKey.usageWaitingForReset,
+            LocalizationKey.usageLikelyWontRunOut,
+            LocalizationKey.usageNotExpectedToRunOut,
+            LocalizationKey.usageSinceFirstCheckToday,
+            LocalizationKey.usageLowConfidence,
+        ]
+        let errorDescriptionKeys = AppError.allCases.map(\.errorDescriptionLocalizationKey)
+        let recoveryKeys = AppError.allCases.compactMap(\.recoverySuggestionLocalizationKey)
+        let poolTitleKeys = UsagePoolID.allCases.map(\.titleLocalizationKey)
+
+        XCTAssertEqual(Set(keys).count, keys.count, "LocalizationKey constants must be distinct")
+        XCTAssertEqual(errorDescriptionKeys.count, AppError.allCases.count)
+        XCTAssertEqual(
+            Set(errorDescriptionKeys).count,
+            errorDescriptionKeys.count,
+            "AppError description keys must be complete and distinct"
+        )
+        XCTAssertTrue(errorDescriptionKeys.allSatisfy { !$0.isEmpty })
+        XCTAssertEqual(poolTitleKeys.count, UsagePoolID.allCases.count)
+        XCTAssertEqual(
+            Set(poolTitleKeys).count,
+            poolTitleKeys.count,
+            "UsagePoolID title keys must be complete and distinct"
+        )
+        XCTAssertTrue(poolTitleKeys.allSatisfy { !$0.isEmpty })
+
+        for key in keys + errorDescriptionKeys + recoveryKeys + poolTitleKeys {
+            let english = AppLocalization.string(for: key, locale: Locale(identifier: "en"), bundle: bundle)
+            let korean = AppLocalization.string(for: key, locale: Locale(identifier: "ko"), bundle: bundle)
+            XCTAssertNotEqual(english, key, "Missing English catalog entry for \(key)")
+            XCTAssertNotEqual(korean, key, "Missing Korean catalog entry for \(key)")
+        }
+    }
+
+    func testUsagePaceBrandRemainsUntranslated() {
+        let bundle = Bundle(for: AppLanguageTests.self)
+        XCTAssertEqual(
+            AppLocalization.string(for: LocalizationKey.menuUsagePace, locale: Locale(identifier: "en"), bundle: bundle),
+            "Usage Pace"
+        )
+        XCTAssertEqual(
+            AppLocalization.string(for: LocalizationKey.menuUsagePace, locale: Locale(identifier: "ko"), bundle: bundle),
+            "Usage Pace"
+        )
+    }
+
+    func testCatalogPreservesDynamicSentenceOrder() {
+        let bundle = Bundle(for: AppLanguageTests.self)
+        XCTAssertEqual(
+            AppLocalization.format(
+                LocalizationKey.usageSinceFirstCheckToday,
+                locale: Locale(identifier: "ko"),
+                arguments: ["+1.0%"],
+                bundle: bundle
+            ),
+            "오늘 첫 확인 이후 +1.0%"
+        )
+        XCTAssertEqual(
+            AppLocalization.format(
+                LocalizationKey.menuUpdated,
+                locale: Locale(identifier: "ko"),
+                arguments: ["5분 전"],
+                bundle: bundle
+            ),
+            "5분 전 업데이트"
+        )
+        XCTAssertEqual(
+            AppLocalization.format(
+                LocalizationKey.usagePoolError,
+                locale: Locale(identifier: "ko"),
+                arguments: ["Cursor 모델", "사용량을 가져올 수 없습니다"],
+                bundle: bundle
+            ),
+            "Cursor 모델: 사용량을 가져올 수 없습니다"
+        )
+    }
+
+    func testLocaleAwareUsageFormattingKeepsTheRenderedNumber() {
+        XCTAssertEqual(
+            UsagePercentFormat.string(42.5, locale: Locale(identifier: "en")),
+            "42.5%"
+        )
+    }
+}

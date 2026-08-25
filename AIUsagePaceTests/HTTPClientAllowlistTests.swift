@@ -50,8 +50,8 @@ final class AppErrorTests: XCTestCase {
         XCTAssertNotEqual(AppError.unsupportedAccountType, AppError.unsupportedResponseSchema)
         XCTAssertNotEqual(AppError.unsupportedAccountType, AppError.usageUnavailable)
         XCTAssertEqual(AppError.unsupportedAccountType.localizedDescription, "Unsupported account type")
-        XCTAssertEqual(AppError.unsupportedResponseSchema.localizedDescription, "Usage response changed")
-        XCTAssertEqual(AppError.grokLoginNotFound.localizedDescription, "Grok login not found")
+        XCTAssertEqual(AppError.unsupportedResponseSchema.localizedDescription, "Usage data format changed")
+        XCTAssertEqual(AppError.grokLoginNotFound.localizedDescription, "Grok CLI login not found")
         XCTAssertNotEqual(
             AppError.unsupportedResponseSchema.localizedDescription,
             AppError.networkFailure.localizedDescription

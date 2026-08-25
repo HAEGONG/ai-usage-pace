@@ -55,6 +55,15 @@ final class RefreshService: ObservableObject {
         )
     }
 
+    func menuBarTitle(locale: Locale) -> String {
+        UsageSnapshot.menuBarTitle(
+            from: providerStates.flatMap { state in
+                (state.snapshot?.buckets ?? []).map { ($0, state.stats?.paceRatio(for: $0.id)) }
+            },
+            locale: locale
+        )
+    }
+
     func state(id: String) -> ProviderUsageState? {
         providerStates.first { $0.providerID == id }
     }

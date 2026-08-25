@@ -35,6 +35,12 @@
 		B127 /* GrokBotAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F127 /* GrokBotAPIClient.swift */; };
 		B128 /* GrokBotModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F128 /* GrokBotModels.swift */; };
 		B129 /* GrokBotUsageMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F129 /* GrokBotUsageMapper.swift */; };
+		B130 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F130 /* AppLanguage.swift */; };
+		B131 /* LanguageSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F131 /* LanguageSettings.swift */; };
+		B132 /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F132 /* AppLocalization.swift */; };
+		B220 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F133 /* Localizable.xcstrings */; };
+		B221 /* Localizable.xcstrings in Test Resources */ = {isa = PBXBuildFile; fileRef = F133 /* Localizable.xcstrings */; };
+		B222 /* AppLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F220 /* AppLanguageTests.swift */; };
 		B201 /* CursorAuthReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F201 /* CursorAuthReaderTests.swift */; };
 		B202 /* RefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F202 /* RefreshServiceTests.swift */; };
 		B203 /* HTTPClientAllowlistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F203 /* HTTPClientAllowlistTests.swift */; };
@@ -98,6 +104,11 @@
 		F127 /* GrokBotAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokBotAPIClient.swift; sourceTree = "<group>"; };
 		F128 /* GrokBotModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokBotModels.swift; sourceTree = "<group>"; };
 		F129 /* GrokBotUsageMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokBotUsageMapper.swift; sourceTree = "<group>"; };
+		F130 /* AppLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguage.swift; sourceTree = "<group>"; };
+		F131 /* LanguageSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSettings.swift; sourceTree = "<group>"; };
+		F132 /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
+		F133 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		F220 /* AppLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguageTests.swift; sourceTree = "<group>"; };
 		F201 /* CursorAuthReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAuthReaderTests.swift; sourceTree = "<group>"; };
 		F202 /* RefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshServiceTests.swift; sourceTree = "<group>"; };
 		F203 /* HTTPClientAllowlistTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientAllowlistTests.swift; sourceTree = "<group>"; };
@@ -141,10 +152,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B221 /* Localizable.xcstrings in Test Resources */,
 				B205 /* usage-summary-pro-plus.json in Resources */,
 				B213 /* billing-credits-weekly.json in Resources */,
 				B214 /* sand-usage-status-subscribed.json in Resources */,
 				B219 /* sand-usage-status-with-reset.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		RESAPP /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B220 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,6 +194,7 @@
 			children = (
 				F119 /* AIUsagePace.entitlements */,
 				GAPPAPP /* App */,
+				GRES /* Resources */,
 				GMODELS /* Models */,
 				GPROV /* Providers */,
 				GSERV /* Services */,
@@ -191,9 +212,18 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		GRES /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F133 /* Localizable.xcstrings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		GMODELS /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				F130 /* AppLanguage.swift */,
 				F102 /* AppError.swift */,
 				F103 /* UsageSnapshot.swift */,
 				F104 /* UsageStats.swift */,
@@ -241,6 +271,7 @@
 		GSERV /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F131 /* LanguageSettings.swift */,
 				F111 /* UsageHistoryStore.swift */,
 				F112 /* UsageAnalytics.swift */,
 				F113 /* RefreshService.swift */,
@@ -261,6 +292,7 @@
 		GUTIL /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				F132 /* AppLocalization.swift */,
 				F117 /* HTTPClient.swift */,
 				F118 /* SQLiteReadonly.swift */,
 				F120 /* JWTAccessToken.swift */,
@@ -273,6 +305,7 @@
 			isa = PBXGroup;
 			children = (
 				GFIXT /* Fixtures */,
+				F220 /* AppLanguageTests.swift */,
 				F201 /* CursorAuthReaderTests.swift */,
 				F202 /* RefreshServiceTests.swift */,
 				F203 /* HTTPClientAllowlistTests.swift */,
@@ -312,6 +345,7 @@
 			buildPhases = (
 				SRCAPP /* Sources */,
 				FWAPP /* Frameworks */,
+				RESAPP /* Resources */,
 			);
 			buildRules = (
 			);
@@ -365,6 +399,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ko,
 				Base,
 			);
 			mainGroup = G000;
@@ -411,6 +446,9 @@
 				B127 /* GrokBotAPIClient.swift in Sources */,
 				B128 /* GrokBotModels.swift in Sources */,
 				B129 /* GrokBotUsageMapper.swift in Sources */,
+				B130 /* AppLanguage.swift in Sources */,
+				B131 /* LanguageSettings.swift in Sources */,
+				B132 /* AppLocalization.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -433,6 +471,7 @@
 				B216 /* GrokBotAPIClientTests.swift in Sources */,
 				B217 /* CursorUsageProviderTests.swift in Sources */,
 				B218 /* FixturePrivacyTests.swift in Sources */,
+				B222 /* AppLanguageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,7 +540,7 @@
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.haegong.AIUsagePace;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Debug;
 		};
@@ -526,7 +565,7 @@
 				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.haegong.AIUsagePace;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 			};
 			name = Release;
 		};
