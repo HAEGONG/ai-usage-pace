@@ -51,6 +51,39 @@ final class RefreshServiceTests: XCTestCase {
     }
 
     @MainActor
+    func testAccountSwitchClearsPreviousErrorWhileCachedUsageRefreshes() async {
+        let provider = MockUsageProvider()
+        let loader = MockSessionLoader(session: .accountB)
+        let service = RefreshService(sessionLoader: loader, provider: provider)
+        let accountBSnapshot = UsageSnapshot.stub(
+            fingerprint: CursorSession.accountB.accountFingerprint,
+            percent: 20
+        )
+
+        provider.nextSnapshot = accountBSnapshot
+        await service.performRefresh()
+
+        loader.session = .accountA
+        provider.nextError = .authenticationExpired
+        await service.performRefresh()
+        XCTAssertEqual(service.error, .authenticationExpired)
+
+        loader.session = .accountB
+        provider.nextError = nil
+        provider.delayNanoseconds = 200_000_000
+        service.refresh()
+
+        while provider.fetchCount < 3 {
+            try? await Task.sleep(nanoseconds: 1_000_000)
+        }
+
+        XCTAssertEqual(service.displayedSnapshot, accountBSnapshot)
+        XCTAssertNil(service.error)
+
+        await service.waitForIdle()
+    }
+
+    @MainActor
     func testWakeTriggersRefreshWhenIdle() async {
         let provider = MockUsageProvider()
         let loader = MockSessionLoader(session: .accountA)

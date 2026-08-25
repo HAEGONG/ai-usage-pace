@@ -82,7 +82,7 @@ final class CursorAuthReaderTests: XCTestCase {
         }
     }
 
-    func testBusyDatabaseIsUnableToReadCursorSession() throws {
+    func testBusyDatabaseIsUnableToReadCursorSession() async throws {
         let database = try sqliteFixture(accessToken: syntheticJWT(sub: "github|user_01ABC", exp: 10_000))
         defer { try? FileManager.default.removeItem(at: database) }
 
@@ -94,10 +94,13 @@ final class CursorAuthReaderTests: XCTestCase {
             sqlite3_close(locker)
         }
 
-        XCTAssertThrowsError(try SQLiteReadonly.readString(
-            databasePath: database,
-            sql: "SELECT value FROM ItemTable WHERE key = 'cursorAuth/accessToken' LIMIT 1;"
-        )) { error in
+        do {
+            _ = try await SQLiteReadonly.readString(
+                databasePath: database,
+                sql: "SELECT value FROM ItemTable WHERE key = 'cursorAuth/accessToken' LIMIT 1;"
+            )
+            XCTFail("Expected unableToReadCursorSession")
+        } catch {
             XCTAssertEqual(error as? AppError, .unableToReadCursorSession)
         }
     }

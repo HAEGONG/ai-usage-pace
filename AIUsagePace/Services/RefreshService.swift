@@ -94,6 +94,7 @@ final class RefreshService: ObservableObject {
             displayedSnapshot = lastSuccessByFingerprint[session.accountFingerprint]
             lastUpdated = displayedSnapshot?.capturedAt
             stats = nil
+            error = nil
             historyWarning = nil
         }
 

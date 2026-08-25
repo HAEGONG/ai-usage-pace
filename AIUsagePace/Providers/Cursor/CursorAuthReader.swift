@@ -38,7 +38,7 @@ struct CursorAuthReader: SessionLoading {
         }
 
         let sql = "SELECT value FROM ItemTable WHERE key = 'cursorAuth/accessToken' LIMIT 1;"
-        guard let accessToken = try SQLiteReadonly.readString(databasePath: databasePath, sql: sql) else {
+        guard let accessToken = try await SQLiteReadonly.readString(databasePath: databasePath, sql: sql) else {
             throw AppError.cursorLoginNotFound
         }
 
