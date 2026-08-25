@@ -42,20 +42,14 @@ enum UsagePoolID: String, Codable, Sendable, CaseIterable {
         }
     }
 
-    var menuBarPrefix: String {
+    var iconAssetName: String {
         switch self {
-        case .cursorModels:
-            "C"
-        case .otherModels:
-            "O"
-        case .grokBotWeekly:
-            "B"
-        case .grokWeekly:
-            "G"
-        case .codexSession:
-            "Cs"
-        case .codexWeekly:
-            "Cx"
+        case .cursorModels, .otherModels:
+            "CursorIcon"
+        case .grokBotWeekly, .grokWeekly:
+            "GrokIcon"
+        case .codexSession, .codexWeekly:
+            "CodexIcon"
         }
     }
 }
@@ -250,7 +244,7 @@ extension UsageSnapshot {
         guard let bucket = highlightedBucket(from: candidates) else {
             return defaultMenuBarTitle
         }
-        return "\(bucket.id.menuBarPrefix) \(UsagePercentFormat.string(bucket.percentUsed))"
+        return UsagePercentFormat.string(bucket.percentUsed)
     }
 
     static func menuBarTitle(
@@ -260,7 +254,7 @@ extension UsageSnapshot {
         guard let bucket = highlightedBucket(from: candidates) else {
             return defaultMenuBarTitle
         }
-        return "\(bucket.id.menuBarPrefix) \(UsagePercentFormat.string(bucket.percentUsed, locale: locale))"
+        return UsagePercentFormat.string(bucket.percentUsed, locale: locale)
     }
 
     static func highlightedBucket(from candidates: [(UsageBucket, Double?)]) -> UsageBucket? {

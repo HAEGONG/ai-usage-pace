@@ -201,7 +201,8 @@ final class RefreshServiceTests: XCTestCase {
         XCTAssertNil(service.state(id: "grok")?.snapshot)
         XCTAssertEqual(service.state(id: "grok")?.error, .grokLoginNotFound)
         XCTAssertEqual(grok.fetchCount, 0)
-        XCTAssertEqual(service.menuBarTitle, "C 12%")
+        XCTAssertEqual(service.menuBarTitle, "12%")
+        XCTAssertEqual(service.menuBarIconAssetName, "CursorIcon")
     }
 
     @MainActor
@@ -218,7 +219,8 @@ final class RefreshServiceTests: XCTestCase {
         XCTAssertEqual(service.state(id: "cursor")?.error, .cursorLoginNotFound)
         XCTAssertEqual(service.state(id: "grok")?.snapshot?.buckets.first?.percentUsed, 42.5)
         XCTAssertNil(service.state(id: "grok")?.error)
-        XCTAssertEqual(service.menuBarTitle, "G 42.5%")
+        XCTAssertEqual(service.menuBarTitle, "42.5%")
+        XCTAssertEqual(service.menuBarIconAssetName, "GrokIcon")
     }
 
     @MainActor

@@ -47,21 +47,26 @@ final class RefreshService: ObservableObject {
         inFlightTask != nil
     }
 
+    var highlightedBucket: UsageBucket? {
+        UsageSnapshot.highlightedBucket(from: menuBarCandidates)
+    }
+
+    var menuBarIconAssetName: String? {
+        highlightedBucket?.id.iconAssetName
+    }
+
     var menuBarTitle: String {
-        UsageSnapshot.menuBarTitle(
-            from: providerStates.flatMap { state in
-                (state.snapshot?.buckets ?? []).map { ($0, state.stats?.paceRatio(for: $0.id)) }
-            }
-        )
+        UsageSnapshot.menuBarTitle(from: menuBarCandidates)
     }
 
     func menuBarTitle(locale: Locale) -> String {
-        UsageSnapshot.menuBarTitle(
-            from: providerStates.flatMap { state in
-                (state.snapshot?.buckets ?? []).map { ($0, state.stats?.paceRatio(for: $0.id)) }
-            },
-            locale: locale
-        )
+        UsageSnapshot.menuBarTitle(from: menuBarCandidates, locale: locale)
+    }
+
+    private var menuBarCandidates: [(UsageBucket, Double?)] {
+        providerStates.flatMap { state in
+            (state.snapshot?.buckets ?? []).map { ($0, state.stats?.paceRatio(for: $0.id)) }
+        }
     }
 
     func state(id: String) -> ProviderUsageState? {

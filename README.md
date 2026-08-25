@@ -79,4 +79,4 @@ Xcode 콘솔에 나타나는 `com.apple.linkd.autoShortcut`과 `Error registerin
 
 앱을 처음 실행한 뒤 첫 24시간 동안은 밤과 비업무 시간까지 포함한 사용 패턴을 관측하기 위해 `Usage pace`, `Runs out` 항목에 `사용 기록 부족`(`Not enough usage history`)이 표시될 수 있습니다. Cursor Models와 Other Models 월간 풀은 현재 월의 요일·시간대별 패턴을 사용합니다. Grok Bot, Grok CLI, Codex Weekly 주간 풀은 이전 주기 이력이 있으면 최근 최대 8주 패턴을 현재 주와 혼합하므로, 첫 주가 지난 뒤에는 초기화 직후에도 예측할 수 있습니다. 앱은 15분마다 사용량을 갱신하며, Mac이 잠자기 상태에서 깨어나거나 사용자가 `Refresh`를 선택했을 때도 사용량을 갱신합니다. 새로고침이 불규칙하거나 반복되더라도 예측에서는 경과 시간을 기준으로 15분 구간에 정규화합니다.
 
-메뉴 막대에는 권장 속도 대비 실제 사용 속도의 비율이 가장 높은 사용량 풀이 표시됩니다. 이 비율을 계산할 수 없는 경우에는 현재 사용률이 가장 높은 풀을 표시합니다. `C`, `O`, `B`, `G`, `Cs`, `Cx`는 각각 Cursor Models, Other Models, Grok Bot, Grok CLI, Codex Session, Codex Weekly를 의미합니다.
+메뉴 막대에는 권장 속도 대비 실제 사용 속도의 비율이 가장 높은 사용량 풀이 표시됩니다. 이 비율을 계산할 수 없는 경우에는 현재 사용률이 가장 높은 풀을 표시합니다. 아이콘은 Cursor, Grok, Codex 중 해당 풀의 서비스를 나타냅니다.
