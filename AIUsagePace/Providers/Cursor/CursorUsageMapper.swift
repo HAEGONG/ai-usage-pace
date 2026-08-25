@@ -65,21 +65,9 @@ enum CursorUsageMapper {
 
     private static func parseCycleDate(_ raw: String?) throws -> Date? {
         guard let raw, !raw.isEmpty else { return nil }
-        if let date = iso8601Date(from: raw) {
+        if let date = ISO8601Timestamp.date(from: raw) {
             return date
         }
         throw AppError.unsupportedResponseSchema
-    }
-
-    private static func iso8601Date(from raw: String) -> Date? {
-        let withFractional = ISO8601DateFormatter()
-        withFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = withFractional.date(from: raw) {
-            return date
-        }
-
-        let withoutFractional = ISO8601DateFormatter()
-        withoutFractional.formatOptions = [.withInternetDateTime]
-        return withoutFractional.date(from: raw)
     }
 }

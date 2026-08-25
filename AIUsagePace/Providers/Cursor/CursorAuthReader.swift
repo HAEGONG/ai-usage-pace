@@ -1,4 +1,3 @@
-import CryptoKit
 import Foundation
 
 struct CursorSession: Equatable, Sendable {
@@ -14,7 +13,6 @@ protocol SessionLoading: Sendable {
 
 struct CursorAuthReader: SessionLoading {
     static let accessTokenKey = "cursorAuth/accessToken"
-    static let sessionExpiryLeeway: TimeInterval = 60
 
     var databasePath: URL
     var now: @Sendable () -> Date
@@ -46,25 +44,36 @@ struct CursorAuthReader: SessionLoading {
     }
 
     static func session(fromAccessToken accessToken: String, now: Date) throws -> CursorSession {
-        let payload = try jwtPayload(accessToken)
-        guard let subject = payload["sub"] as? String else {
+        let payload: [String: Any]
+        do {
+            payload = try JWTAccessToken.payload(accessToken)
+        } catch {
             throw AppError.unableToReadCursorSession
         }
-        try rejectEmptyOrControlCharacters(subject)
+
+        let subject: String
+        do {
+            guard let value = payload["sub"] as? String else {
+                throw JWTAccessToken.ParseError.missingSubject
+            }
+            try JWTAccessToken.rejectEmptyOrControlCharacters(value)
+            subject = value
+        } catch {
+            throw AppError.unableToReadCursorSession
+        }
 
         let userID = userID(fromSubject: subject)
-        try rejectEmptyOrControlCharacters(userID)
+        do {
+            try JWTAccessToken.rejectEmptyOrControlCharacters(userID)
+            try JWTAccessToken.rejectEmptyOrControlCharacters(accessToken)
+        } catch {
+            throw AppError.unableToReadCursorSession
+        }
 
-        if let expiration = payload["exp"] as? Double {
-            let expiry = Date(timeIntervalSince1970: expiration)
-            if expiry.timeIntervalSince(now) <= sessionExpiryLeeway {
-                throw AppError.sessionExpired
-            }
-        } else if let expiration = payload["exp"] as? Int {
-            let expiry = Date(timeIntervalSince1970: TimeInterval(expiration))
-            if expiry.timeIntervalSince(now) <= sessionExpiryLeeway {
-                throw AppError.sessionExpired
-            }
+        do {
+            try JWTAccessToken.rejectIfExpired(payload: payload, now: now)
+        } catch JWTAccessToken.ParseError.expired {
+            throw AppError.sessionExpired
         }
 
         return CursorSession(
@@ -76,8 +85,12 @@ struct CursorAuthReader: SessionLoading {
     }
 
     static func cookieValue(userID: String, accessToken: String) throws -> String {
-        try rejectEmptyOrControlCharacters(userID)
-        try rejectEmptyOrControlCharacters(accessToken)
+        do {
+            try JWTAccessToken.rejectEmptyOrControlCharacters(userID)
+            try JWTAccessToken.rejectEmptyOrControlCharacters(accessToken)
+        } catch {
+            throw AppError.unableToReadCursorSession
+        }
         return "\(userID)%3A%3A\(accessToken)"
     }
 
@@ -89,40 +102,6 @@ struct CursorAuthReader: SessionLoading {
     }
 
     static func fingerprint(for subject: String) -> String {
-        let digest = SHA256.hash(data: Data(subject.utf8))
-        return digest.map { String(format: "%02x", $0) }.joined()
-    }
-
-    private static func jwtPayload(_ token: String) throws -> [String: Any] {
-        let parts = token.split(separator: ".", omittingEmptySubsequences: false)
-        guard parts.count >= 2 else {
-            throw AppError.unableToReadCursorSession
-        }
-
-        var payload = String(parts[1])
-            .replacingOccurrences(of: "-", with: "+")
-            .replacingOccurrences(of: "_", with: "/")
-        let padding = payload.count % 4
-        if padding > 0 {
-            payload += String(repeating: "=", count: 4 - padding)
-        }
-
-        guard let data = Data(base64Encoded: payload),
-              let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        else {
-            throw AppError.unableToReadCursorSession
-        }
-        return json
-    }
-
-    private static func rejectEmptyOrControlCharacters(_ value: String) throws {
-        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            throw AppError.unableToReadCursorSession
-        }
-        let hasControl = value.unicodeScalars.contains { CharacterSet.controlCharacters.contains($0) }
-        if hasControl {
-            throw AppError.unableToReadCursorSession
-        }
+        JWTAccessToken.fingerprint(for: subject)
     }
 }

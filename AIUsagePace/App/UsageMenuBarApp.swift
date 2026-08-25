@@ -8,8 +8,10 @@ struct UsageMenuBarApp: App {
 
     init() {
         let service = RefreshService(
-            sessionLoader: CursorAuthReader(),
-            provider: CursorUsageProvider(),
+            providers: [
+                CursorUsageProvider(),
+                GrokUsageProvider(),
+            ],
             history: UsageHistoryStore()
         )
         _refreshService = StateObject(wrappedValue: service)
@@ -22,7 +24,7 @@ struct UsageMenuBarApp: App {
         MenuBarExtra {
             MenuBarView(refreshService: refreshService)
         } label: {
-            Text(refreshService.displayedSnapshot?.menuBarTitle(stats: refreshService.stats) ?? "Usage Pace")
+            Text(refreshService.menuBarTitle)
         }
         .menuBarExtraStyle(.window)
 

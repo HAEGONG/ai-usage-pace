@@ -3,6 +3,7 @@ import Foundation
 enum UsagePoolID: String, Codable, Sendable {
     case cursorModels
     case otherModels
+    case grokWeekly
 
     var title: String {
         switch self {
@@ -10,6 +11,8 @@ enum UsagePoolID: String, Codable, Sendable {
             "Cursor Models"
         case .otherModels:
             "Other Models"
+        case .grokWeekly:
+            "Weekly"
         }
     }
 
@@ -19,6 +22,8 @@ enum UsagePoolID: String, Codable, Sendable {
             "C"
         case .otherModels:
             "O"
+        case .grokWeekly:
+            "G"
         }
     }
 }
@@ -80,27 +85,32 @@ enum UsagePercentFormat {
 
 extension UsageSnapshot {
     var highlightedBucket: UsageBucket? {
-        buckets.max { lhs, rhs in
-            if lhs.percentUsed != rhs.percentUsed {
-                return lhs.percentUsed < rhs.percentUsed
-            }
-            return lhs.id != .cursorModels && rhs.id == .cursorModels
-        }
+        Self.highlightedBucket(from: buckets.map { ($0, nil) })
     }
 
     var menuBarTitle: String {
-        title(for: highlightedBucket)
+        Self.menuBarTitle(from: buckets.map { ($0, nil) })
     }
 
     func menuBarTitle(stats: UsageStats?) -> String {
-        title(for: highlightedBucket(stats: stats))
+        Self.menuBarTitle(from: buckets.map { ($0, stats?.paceRatio(for: $0.id)) })
     }
 
     func highlightedBucket(stats: UsageStats?) -> UsageBucket? {
-        guard let stats else { return highlightedBucket }
-        let paced = buckets.compactMap { bucket -> (UsageBucket, Double)? in
-            guard let ratio = stats.paceRatio(for: bucket.id) else { return nil }
-            return (bucket, ratio)
+        Self.highlightedBucket(from: buckets.map { ($0, stats?.paceRatio(for: $0.id)) })
+    }
+
+    static func menuBarTitle(from candidates: [(UsageBucket, Double?)]) -> String {
+        guard let bucket = highlightedBucket(from: candidates) else {
+            return "Usage Pace"
+        }
+        return "\(bucket.id.menuBarPrefix) \(UsagePercentFormat.string(bucket.percentUsed))"
+    }
+
+    static func highlightedBucket(from candidates: [(UsageBucket, Double?)]) -> UsageBucket? {
+        let paced = candidates.compactMap { bucket, pace -> (UsageBucket, Double)? in
+            guard let pace else { return nil }
+            return (bucket, pace)
         }
         if let best = paced.max(by: { lhs, rhs in
             if lhs.1 != rhs.1 { return lhs.1 < rhs.1 }
@@ -108,13 +118,11 @@ extension UsageSnapshot {
         }) {
             return best.0
         }
-        return highlightedBucket
-    }
-
-    private func title(for bucket: UsageBucket?) -> String {
-        guard let bucket else {
-            return "Usage Pace"
+        return candidates.map(\.0).max { lhs, rhs in
+            if lhs.percentUsed != rhs.percentUsed {
+                return lhs.percentUsed < rhs.percentUsed
+            }
+            return lhs.id != .cursorModels && rhs.id == .cursorModels
         }
-        return "\(bucket.id.menuBarPrefix) \(UsagePercentFormat.string(bucket.percentUsed))"
     }
 }

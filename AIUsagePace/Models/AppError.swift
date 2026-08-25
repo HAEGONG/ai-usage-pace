@@ -3,8 +3,10 @@ import Foundation
 enum AppError: Error, Equatable, Sendable {
     case cursorNotInstalled
     case cursorLoginNotFound
+    case grokLoginNotFound
     case sessionExpired
     case unableToReadCursorSession
+    case unableToReadGrokSession
     case unsupportedAccountType
     case unsupportedResponseSchema
     case usageUnavailable
@@ -20,14 +22,18 @@ extension AppError: LocalizedError {
             "Cursor is not installed"
         case .cursorLoginNotFound:
             "Cursor login not found"
+        case .grokLoginNotFound:
+            "Grok login not found"
         case .sessionExpired:
             "Session expired"
         case .unableToReadCursorSession:
             "Unable to read Cursor session"
+        case .unableToReadGrokSession:
+            "Unable to read Grok session"
         case .unsupportedAccountType:
             "Unsupported account type"
         case .unsupportedResponseSchema:
-            "Cursor usage response changed"
+            "Usage response changed"
         case .usageUnavailable:
             "Usage data is unavailable"
         case .networkFailure:
@@ -43,16 +49,20 @@ extension AppError: LocalizedError {
         switch self {
         case .cursorNotInstalled:
             "Install Cursor, sign in, then refresh."
-        case .cursorLoginNotFound, .sessionExpired, .authenticationExpired:
+        case .cursorLoginNotFound:
             "Open Cursor and sign in, then refresh."
+        case .grokLoginNotFound, .unableToReadGrokSession:
+            "Run grok login, then refresh."
+        case .sessionExpired, .authenticationExpired:
+            "Sign in again, then refresh."
         case .unableToReadCursorSession:
             "If Cursor is open, wait a moment and refresh."
         case .unsupportedAccountType:
-            "Team, Enterprise, Business, and unlimited plans are not supported."
+            "Team, Enterprise, Business, unlimited, and non-weekly Grok plans are not supported."
         case .unsupportedResponseSchema:
-            "The unofficial usage-summary shape is no longer recognized."
+            "The unofficial usage response is no longer recognized."
         case .usageUnavailable:
-            "Quota information was missing from Cursor."
+            "Quota information was missing."
         case .networkFailure:
             "Check your connection and try again."
         case .usageHistoryUnavailable:

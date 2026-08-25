@@ -25,6 +25,13 @@
 		B116 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F116 /* SettingsView.swift */; };
 		B117 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F117 /* HTTPClient.swift */; };
 		B118 /* SQLiteReadonly.swift in Sources */ = {isa = PBXBuildFile; fileRef = F118 /* SQLiteReadonly.swift */; };
+		B120 /* JWTAccessToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F120 /* JWTAccessToken.swift */; };
+		B121 /* ISO8601Timestamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F121 /* ISO8601Timestamp.swift */; };
+		B122 /* GrokAuthReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F122 /* GrokAuthReader.swift */; };
+		B123 /* GrokAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F123 /* GrokAPIClient.swift */; };
+		B124 /* GrokModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F124 /* GrokModels.swift */; };
+		B125 /* GrokUsageMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F125 /* GrokUsageMapper.swift */; };
+		B126 /* GrokUsageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F126 /* GrokUsageProvider.swift */; };
 		B201 /* CursorAuthReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F201 /* CursorAuthReaderTests.swift */; };
 		B202 /* RefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F202 /* RefreshServiceTests.swift */; };
 		B203 /* HTTPClientAllowlistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F203 /* HTTPClientAllowlistTests.swift */; };
@@ -34,6 +41,10 @@
 		B207 /* HistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F207 /* HistoryStoreTests.swift */; };
 		B208 /* UsageAnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F208 /* UsageAnalyticsTests.swift */; };
 		B209 /* CursorAPIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F209 /* CursorAPIClientTests.swift */; };
+		B210 /* GrokAuthReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F210 /* GrokAuthReaderTests.swift */; };
+		B211 /* GrokMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F211 /* GrokMapperTests.swift */; };
+		B212 /* GrokAPIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F212 /* GrokAPIClientTests.swift */; };
+		B213 /* billing-credits-weekly.json in Resources */ = {isa = PBXBuildFile; fileRef = F213 /* billing-credits-weekly.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +79,13 @@
 		F117 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
 		F118 /* SQLiteReadonly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteReadonly.swift; sourceTree = "<group>"; };
 		F119 /* AIUsagePace.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AIUsagePace.entitlements; sourceTree = "<group>"; };
+		F120 /* JWTAccessToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JWTAccessToken.swift; sourceTree = "<group>"; };
+		F121 /* ISO8601Timestamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ISO8601Timestamp.swift; sourceTree = "<group>"; };
+		F122 /* GrokAuthReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokAuthReader.swift; sourceTree = "<group>"; };
+		F123 /* GrokAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokAPIClient.swift; sourceTree = "<group>"; };
+		F124 /* GrokModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokModels.swift; sourceTree = "<group>"; };
+		F125 /* GrokUsageMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokUsageMapper.swift; sourceTree = "<group>"; };
+		F126 /* GrokUsageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokUsageProvider.swift; sourceTree = "<group>"; };
 		F201 /* CursorAuthReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAuthReaderTests.swift; sourceTree = "<group>"; };
 		F202 /* RefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshServiceTests.swift; sourceTree = "<group>"; };
 		F203 /* HTTPClientAllowlistTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientAllowlistTests.swift; sourceTree = "<group>"; };
@@ -77,6 +95,10 @@
 		F207 /* HistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStoreTests.swift; sourceTree = "<group>"; };
 		F208 /* UsageAnalyticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageAnalyticsTests.swift; sourceTree = "<group>"; };
 		F209 /* CursorAPIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAPIClientTests.swift; sourceTree = "<group>"; };
+		F210 /* GrokAuthReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokAuthReaderTests.swift; sourceTree = "<group>"; };
+		F211 /* GrokMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokMapperTests.swift; sourceTree = "<group>"; };
+		F212 /* GrokAPIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrokAPIClientTests.swift; sourceTree = "<group>"; };
+		F213 /* billing-credits-weekly.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "billing-credits-weekly.json"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +124,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B205 /* usage-summary-pro-plus.json in Resources */,
+				B213 /* billing-credits-weekly.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,8 +186,21 @@
 			children = (
 				F105 /* UsageProvider.swift */,
 				GCURSOR /* Cursor */,
+				GGROK /* Grok */,
 			);
 			path = Providers;
+			sourceTree = "<group>";
+		};
+		GGROK /* Grok */ = {
+			isa = PBXGroup;
+			children = (
+				F122 /* GrokAuthReader.swift */,
+				F123 /* GrokAPIClient.swift */,
+				F124 /* GrokModels.swift */,
+				F125 /* GrokUsageMapper.swift */,
+				F126 /* GrokUsageProvider.swift */,
+			);
+			path = Grok;
 			sourceTree = "<group>";
 		};
 		GCURSOR /* Cursor */ = {
@@ -204,6 +240,8 @@
 			children = (
 				F117 /* HTTPClient.swift */,
 				F118 /* SQLiteReadonly.swift */,
+				F120 /* JWTAccessToken.swift */,
+				F121 /* ISO8601Timestamp.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -220,6 +258,9 @@
 				F207 /* HistoryStoreTests.swift */,
 				F208 /* UsageAnalyticsTests.swift */,
 				F209 /* CursorAPIClientTests.swift */,
+				F210 /* GrokAuthReaderTests.swift */,
+				F211 /* GrokMapperTests.swift */,
+				F212 /* GrokAPIClientTests.swift */,
 			);
 			path = AIUsagePaceTests;
 			sourceTree = "<group>";
@@ -228,6 +269,7 @@
 			isa = PBXGroup;
 			children = (
 				F205 /* usage-summary-pro-plus.json */,
+				F213 /* billing-credits-weekly.json */,
 			);
 			path = Fixtures;
 			sourceTree = "<group>";
@@ -330,6 +372,13 @@
 				B116 /* SettingsView.swift in Sources */,
 				B117 /* HTTPClient.swift in Sources */,
 				B118 /* SQLiteReadonly.swift in Sources */,
+				B120 /* JWTAccessToken.swift in Sources */,
+				B121 /* ISO8601Timestamp.swift in Sources */,
+				B122 /* GrokAuthReader.swift in Sources */,
+				B123 /* GrokAPIClient.swift in Sources */,
+				B124 /* GrokModels.swift in Sources */,
+				B125 /* GrokUsageMapper.swift in Sources */,
+				B126 /* GrokUsageProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,6 +394,9 @@
 				B207 /* HistoryStoreTests.swift in Sources */,
 				B208 /* UsageAnalyticsTests.swift in Sources */,
 				B209 /* CursorAPIClientTests.swift in Sources */,
+				B210 /* GrokAuthReaderTests.swift in Sources */,
+				B211 /* GrokMapperTests.swift in Sources */,
+				B212 /* GrokAPIClientTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

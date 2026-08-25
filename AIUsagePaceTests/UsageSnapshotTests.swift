@@ -57,6 +57,39 @@ final class UsageSnapshotTests: XCTestCase {
         )
     }
 
+    func testMenuBarUsesGrokPrefix() {
+        let usage = UsageSnapshot(
+            providerID: "grok",
+            accountFingerprint: "ggg",
+            capturedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            cycleStart: nil,
+            cycleEnd: nil,
+            buckets: [
+                UsageBucket(id: .grokWeekly, meter: .metered(percentUsed: 42.5, absolute: nil)),
+            ],
+            membershipType: "unified",
+            limitType: "USAGE_PERIOD_TYPE_WEEKLY",
+            totalPercentUsed: nil
+        )
+        XCTAssertEqual(usage.menuBarTitle, "G 42.5%")
+    }
+
+    func testMenuBarAcrossProvidersPrefersHigherPercentWhenPaceIsUnknown() {
+        let title = UsageSnapshot.menuBarTitle(from: [
+            (UsageBucket(id: .cursorModels, meter: .metered(percentUsed: 10, absolute: nil)), nil),
+            (UsageBucket(id: .grokWeekly, meter: .metered(percentUsed: 80, absolute: nil)), nil),
+        ])
+        XCTAssertEqual(title, "G 80%")
+    }
+
+    func testMenuBarAcrossProvidersPrefersPaceWhenAnyPoolHasIt() {
+        let title = UsageSnapshot.menuBarTitle(from: [
+            (UsageBucket(id: .cursorModels, meter: .metered(percentUsed: 10, absolute: nil)), 2.0),
+            (UsageBucket(id: .grokWeekly, meter: .metered(percentUsed: 80, absolute: nil)), nil),
+        ])
+        XCTAssertEqual(title, "C 10%")
+    }
+
     private func snapshot(cursor: Double, other: Double) -> UsageSnapshot {
         UsageSnapshot(
             providerID: "cursor",

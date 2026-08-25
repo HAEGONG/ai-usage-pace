@@ -5,23 +5,20 @@ final class RefreshServiceTests: XCTestCase {
     @MainActor
     func testIgnoresOverlappingRefresh() async {
         let provider = MockUsageProvider(delayNanoseconds: 50_000_000)
-        let loader = MockSessionLoader(session: .accountA)
-        let service = RefreshService(sessionLoader: loader, provider: provider)
+        let service = RefreshService(providers: [provider])
 
         service.refresh()
         service.refresh()
         await service.waitForIdle()
 
         XCTAssertEqual(provider.fetchCount, 1)
-        XCTAssertEqual(provider.receivedSessions, [.accountA])
     }
 
     @MainActor
     func testStartIsIdempotent() async {
         let provider = MockUsageProvider()
-        let loader = MockSessionLoader(session: .accountA)
-        let service = RefreshService(sessionLoader: loader, provider: provider)
-        provider.nextSnapshot = .stub(fingerprint: CursorSession.accountA.accountFingerprint, percent: 10)
+        let service = RefreshService(providers: [provider])
+        provider.nextSnapshot = .stub(fingerprint: "aaa", percent: 10)
 
         service.start()
         await service.waitForIdle()
@@ -34,41 +31,37 @@ final class RefreshServiceTests: XCTestCase {
     @MainActor
     func testAccountSwitchDoesNotShowPreviousAccountOnFetchFailure() async {
         let provider = MockUsageProvider()
-        let loader = MockSessionLoader(session: .accountA)
-        let service = RefreshService(sessionLoader: loader, provider: provider)
+        let service = RefreshService(providers: [provider])
 
-        provider.nextSnapshot = .stub(fingerprint: CursorSession.accountA.accountFingerprint, percent: 10)
+        provider.nextSnapshot = .stub(fingerprint: "aaa", percent: 10)
         await service.performRefresh()
-        XCTAssertEqual(service.displayedSnapshot?.accountFingerprint, CursorSession.accountA.accountFingerprint)
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot?.accountFingerprint, "aaa")
 
-        loader.session = .accountB
+        provider.fingerprint = "bbb"
         provider.nextError = .networkFailure
         await service.performRefresh()
 
-        XCTAssertEqual(service.activeFingerprint, CursorSession.accountB.accountFingerprint)
-        XCTAssertNil(service.displayedSnapshot)
-        XCTAssertEqual(service.error, .networkFailure)
+        XCTAssertEqual(service.state(id: "cursor")?.activeFingerprint, "bbb")
+        XCTAssertNil(service.state(id: "cursor")?.snapshot)
+        XCTAssertEqual(service.state(id: "cursor")?.error, .networkFailure)
     }
 
     @MainActor
     func testAccountSwitchClearsPreviousErrorWhileCachedUsageRefreshes() async {
         let provider = MockUsageProvider()
-        let loader = MockSessionLoader(session: .accountB)
-        let service = RefreshService(sessionLoader: loader, provider: provider)
-        let accountBSnapshot = UsageSnapshot.stub(
-            fingerprint: CursorSession.accountB.accountFingerprint,
-            percent: 20
-        )
+        let service = RefreshService(providers: [provider])
+        let accountBSnapshot = UsageSnapshot.stub(fingerprint: "bbb", percent: 20)
 
+        provider.fingerprint = "bbb"
         provider.nextSnapshot = accountBSnapshot
         await service.performRefresh()
 
-        loader.session = .accountA
+        provider.fingerprint = "aaa"
         provider.nextError = .authenticationExpired
         await service.performRefresh()
-        XCTAssertEqual(service.error, .authenticationExpired)
+        XCTAssertEqual(service.state(id: "cursor")?.error, .authenticationExpired)
 
-        loader.session = .accountB
+        provider.fingerprint = "bbb"
         provider.nextError = nil
         provider.delayNanoseconds = 200_000_000
         service.refresh()
@@ -77,8 +70,8 @@ final class RefreshServiceTests: XCTestCase {
             try? await Task.sleep(nanoseconds: 1_000_000)
         }
 
-        XCTAssertEqual(service.displayedSnapshot, accountBSnapshot)
-        XCTAssertNil(service.error)
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot, accountBSnapshot)
+        XCTAssertNil(service.state(id: "cursor")?.error)
 
         await service.waitForIdle()
     }
@@ -86,9 +79,8 @@ final class RefreshServiceTests: XCTestCase {
     @MainActor
     func testWakeTriggersRefreshWhenIdle() async {
         let provider = MockUsageProvider()
-        let loader = MockSessionLoader(session: .accountA)
-        let service = RefreshService(sessionLoader: loader, provider: provider)
-        provider.nextSnapshot = .stub(fingerprint: CursorSession.accountA.accountFingerprint, percent: 10)
+        let service = RefreshService(providers: [provider])
+        provider.nextSnapshot = .stub(fingerprint: "aaa", percent: 10)
 
         service.handleDidWake()
         await service.waitForIdle()
@@ -99,8 +91,7 @@ final class RefreshServiceTests: XCTestCase {
     @MainActor
     func testNetworkFailureUsesExponentialBackoff() async {
         let provider = MockUsageProvider()
-        let loader = MockSessionLoader(session: .accountA)
-        let service = RefreshService(sessionLoader: loader, provider: provider)
+        let service = RefreshService(providers: [provider])
         provider.nextError = .networkFailure
 
         await service.performRefresh()
@@ -110,7 +101,7 @@ final class RefreshServiceTests: XCTestCase {
         XCTAssertEqual(service.scheduledRefreshInterval, RefreshService.minimumBackoff * 2)
 
         provider.nextError = nil
-        provider.nextSnapshot = .stub(fingerprint: CursorSession.accountA.accountFingerprint, percent: 4)
+        provider.nextSnapshot = .stub(fingerprint: "aaa", percent: 4)
         await service.performRefresh()
         XCTAssertEqual(service.scheduledRefreshInterval, RefreshService.defaultRefreshInterval)
     }
@@ -118,10 +109,9 @@ final class RefreshServiceTests: XCTestCase {
     @MainActor
     func testNetworkFailureKeepsLastSuccessfulSnapshot() async {
         let provider = MockUsageProvider()
-        let loader = MockSessionLoader(session: .accountA)
-        let service = RefreshService(sessionLoader: loader, provider: provider)
+        let service = RefreshService(providers: [provider])
         let first = UsageSnapshot.stub(
-            fingerprint: CursorSession.accountA.accountFingerprint,
+            fingerprint: "aaa",
             percent: 22,
             capturedAt: Date(timeIntervalSince1970: 1_777_000_000)
         )
@@ -131,31 +121,77 @@ final class RefreshServiceTests: XCTestCase {
         provider.nextError = .networkFailure
         await service.performRefresh()
 
-        XCTAssertEqual(service.displayedSnapshot, first)
-        XCTAssertEqual(service.error, .networkFailure)
-        XCTAssertEqual(service.lastUpdated, first.capturedAt)
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot, first)
+        XCTAssertEqual(service.state(id: "cursor")?.error, .networkFailure)
+        XCTAssertEqual(service.state(id: "cursor")?.lastUpdated, first.capturedAt)
     }
 
     @MainActor
     func testHistoryFailureKeepsCurrentUsageAndShowsWarning() async {
         let provider = MockUsageProvider()
-        let loader = MockSessionLoader(session: .accountA)
         let service = RefreshService(
-            sessionLoader: loader,
-            provider: provider,
+            providers: [provider],
             history: FailingUsageHistory()
         )
-        let snapshot = UsageSnapshot.stub(
-            fingerprint: CursorSession.accountA.accountFingerprint,
-            percent: 22
-        )
+        let snapshot = UsageSnapshot.stub(fingerprint: "aaa", percent: 22)
         provider.nextSnapshot = snapshot
 
         await service.performRefresh()
 
-        XCTAssertEqual(service.displayedSnapshot, snapshot)
-        XCTAssertNil(service.error)
-        XCTAssertEqual(service.historyWarning, .usageHistoryUnavailable)
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot, snapshot)
+        XCTAssertNil(service.state(id: "cursor")?.error)
+        XCTAssertEqual(service.state(id: "cursor")?.historyWarning, .usageHistoryUnavailable)
+    }
+
+    @MainActor
+    func testGrokLoginMissingDoesNotClearCursorUsage() async {
+        let cursor = MockUsageProvider()
+        let grok = MockUsageProvider(id: "grok", displayName: "Grok", fingerprint: "ggg")
+        let service = RefreshService(providers: [cursor, grok])
+        let snapshot = UsageSnapshot.stub(fingerprint: "aaa", percent: 12)
+        cursor.nextSnapshot = snapshot
+        grok.fingerprintError = .grokLoginNotFound
+
+        await service.performRefresh()
+
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot, snapshot)
+        XCTAssertNil(service.state(id: "cursor")?.error)
+        XCTAssertNil(service.state(id: "grok")?.snapshot)
+        XCTAssertEqual(service.state(id: "grok")?.error, .grokLoginNotFound)
+        XCTAssertEqual(grok.fetchCount, 0)
+        XCTAssertEqual(service.menuBarTitle, "C 12%")
+    }
+
+    @MainActor
+    func testCursorMissingDoesNotClearGrokUsage() async {
+        let cursor = MockUsageProvider()
+        let grok = MockUsageProvider(id: "grok", displayName: "Grok", fingerprint: "ggg")
+        let service = RefreshService(providers: [cursor, grok])
+        cursor.fingerprintError = .cursorLoginNotFound
+        grok.nextSnapshot = .grokStub(fingerprint: "ggg", percent: 42.5)
+
+        await service.performRefresh()
+
+        XCTAssertNil(service.state(id: "cursor")?.snapshot)
+        XCTAssertEqual(service.state(id: "cursor")?.error, .cursorLoginNotFound)
+        XCTAssertEqual(service.state(id: "grok")?.snapshot?.buckets.first?.percentUsed, 42.5)
+        XCTAssertNil(service.state(id: "grok")?.error)
+        XCTAssertEqual(service.menuBarTitle, "G 42.5%")
+    }
+
+    @MainActor
+    func testPartialNetworkFailureDoesNotBackOffWhenOtherProviderSucceeds() async {
+        let cursor = MockUsageProvider()
+        let grok = MockUsageProvider(id: "grok", displayName: "Grok", fingerprint: "ggg")
+        let service = RefreshService(providers: [cursor, grok])
+        cursor.nextSnapshot = .stub(fingerprint: "aaa", percent: 8)
+        grok.nextError = .networkFailure
+
+        await service.performRefresh()
+
+        XCTAssertEqual(service.scheduledRefreshInterval, RefreshService.defaultRefreshInterval)
+        XCTAssertEqual(service.state(id: "grok")?.error, .networkFailure)
+        XCTAssertNotNil(service.state(id: "cursor")?.snapshot)
     }
 }
 
@@ -169,34 +205,37 @@ private struct FailingUsageHistory: UsageHistoryWriting {
     }
 }
 
-private final class MockSessionLoader: SessionLoading, @unchecked Sendable {
-    var session: CursorSession
-
-    init(session: CursorSession) {
-        self.session = session
-    }
-
-    func loadSession() async throws -> CursorSession {
-        session
-    }
-}
-
 private final class MockUsageProvider: UsageProvider, @unchecked Sendable {
-    let id = "cursor"
-    let displayName = "Cursor"
+    let id: String
+    let displayName: String
+    var fingerprint: String
+    var fingerprintError: AppError?
     var fetchCount = 0
-    var delayNanoseconds: UInt64 = 0
+    var delayNanoseconds: UInt64
     var nextSnapshot: UsageSnapshot?
     var nextError: AppError?
-    var receivedSessions: [CursorSession] = []
 
-    init(delayNanoseconds: UInt64 = 0) {
+    init(
+        id: String = "cursor",
+        displayName: String = "Cursor",
+        fingerprint: String = "aaa",
+        delayNanoseconds: UInt64 = 0
+    ) {
+        self.id = id
+        self.displayName = displayName
+        self.fingerprint = fingerprint
         self.delayNanoseconds = delayNanoseconds
     }
 
-    func fetchUsage(session: CursorSession) async throws -> UsageSnapshot {
+    func loadFingerprint() async throws -> String {
+        if let fingerprintError {
+            throw fingerprintError
+        }
+        return fingerprint
+    }
+
+    func fetchUsage() async throws -> UsageSnapshot {
         fetchCount += 1
-        receivedSessions.append(session)
         if delayNanoseconds > 0 {
             try await Task.sleep(nanoseconds: delayNanoseconds)
         }
@@ -239,6 +278,22 @@ extension UsageSnapshot {
             ],
             membershipType: "pro",
             limitType: nil,
+            totalPercentUsed: nil
+        )
+    }
+
+    static func grokStub(fingerprint: String, percent: Double, capturedAt: Date = Date()) -> UsageSnapshot {
+        UsageSnapshot(
+            providerID: "grok",
+            accountFingerprint: fingerprint,
+            capturedAt: Date(timeIntervalSince1970: capturedAt.timeIntervalSince1970.rounded()),
+            cycleStart: nil,
+            cycleEnd: nil,
+            buckets: [
+                UsageBucket(id: .grokWeekly, meter: .metered(percentUsed: percent, absolute: nil)),
+            ],
+            membershipType: "unified",
+            limitType: GrokUsageMapper.weeklyPeriodType,
             totalPercentUsed: nil
         )
     }

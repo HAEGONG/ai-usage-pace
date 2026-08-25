@@ -9,6 +9,7 @@ struct AllowlistedHTTPClient: HTTPClient {
         "cursor.com",
         "www.cursor.com",
         "api2.cursor.sh",
+        "cli-chat-proxy.grok.com",
     ]
 
     private let session: URLSession
