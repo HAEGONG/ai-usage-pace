@@ -75,7 +75,8 @@ final class AppLanguageTests: XCTestCase {
             LocalizationKey.usagePace,
             LocalizationKey.usageRunsOut,
             LocalizationKey.usageResets,
-            LocalizationKey.usageCollectingData,
+            LocalizationKey.usageNoComparisonYet,
+            LocalizationKey.usageNotEnoughHistory,
             LocalizationKey.usageAtLimit,
             LocalizationKey.usageWaitingForReset,
             LocalizationKey.usageLikelyWontRunOut,
@@ -120,6 +121,42 @@ final class AppLanguageTests: XCTestCase {
         XCTAssertEqual(
             AppLocalization.string(for: LocalizationKey.menuUsagePace, locale: Locale(identifier: "ko"), bundle: bundle),
             "Usage Pace"
+        )
+    }
+
+    func testInitialUsageStatusWording() {
+        let bundle = Bundle(for: AppLanguageTests.self)
+        XCTAssertEqual(
+            AppLocalization.string(
+                for: LocalizationKey.usageNoComparisonYet,
+                locale: Locale(identifier: "en"),
+                bundle: bundle
+            ),
+            "No comparison yet"
+        )
+        XCTAssertEqual(
+            AppLocalization.string(
+                for: LocalizationKey.usageNoComparisonYet,
+                locale: Locale(identifier: "ko"),
+                bundle: bundle
+            ),
+            "아직 비교 기록 없음"
+        )
+        XCTAssertEqual(
+            AppLocalization.string(
+                for: LocalizationKey.usageNotEnoughHistory,
+                locale: Locale(identifier: "en"),
+                bundle: bundle
+            ),
+            "Not enough usage history"
+        )
+        XCTAssertEqual(
+            AppLocalization.string(
+                for: LocalizationKey.usageNotEnoughHistory,
+                locale: Locale(identifier: "ko"),
+                bundle: bundle
+            ),
+            "사용 기록 부족"
         )
     }
 

@@ -800,19 +800,36 @@
         }
       }
     },
-    "usage.collecting_data" : {
+    "usage.no_comparison_yet" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Collecting data…"
+            "value" : "No comparison yet"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "데이터 수집 중…"
+            "value" : "아직 비교 기록 없음"
+          }
+        }
+      }
+    },
+    "usage.not_enough_history" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not enough usage history"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용 기록 부족"
           }
         }
       }

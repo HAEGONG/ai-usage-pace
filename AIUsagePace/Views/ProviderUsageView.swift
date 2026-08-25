@@ -86,7 +86,7 @@ private struct PoolUsageRow: View {
 
     private var todayText: String {
         guard let delta = stats?.todayDelta else {
-            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
+            return localized(LocalizationKey.usageNoComparisonYet, defaultValue: "No comparison yet")
         }
         let value = signedDecimal(delta)
         if stats?.todayIsSinceFirstRecord == true {
@@ -107,7 +107,7 @@ private struct PoolUsageRow: View {
         case .resetPending:
             return localized(LocalizationKey.usageWaitingForReset, defaultValue: "Waiting for reset")
         case .notEnoughData, nil:
-            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
+            return localized(LocalizationKey.usageNotEnoughHistory, defaultValue: "Not enough usage history")
         case .ready, .resetsBeforeExhaustion, .noExhaustionProjected:
             if let ratio = stats?.paceRatio {
                 let value = AppLocalization.decimal(ratio, fractionDigits: 1, locale: locale) + "×"
@@ -121,7 +121,7 @@ private struct PoolUsageRow: View {
                 }
                 return value
             }
-            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
+            return localized(LocalizationKey.usageNotEnoughHistory, defaultValue: "Not enough usage history")
         }
     }
 
@@ -142,12 +142,12 @@ private struct PoolUsageRow: View {
                 defaultValue: "Not expected to run out"
             )
         case .notEnoughData, nil:
-            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
+            return localized(LocalizationKey.usageNotEnoughHistory, defaultValue: "Not enough usage history")
         case .ready:
             if let date = stats?.exhaustionAt {
                 return AppLocalization.dateTime(date, locale: locale)
             }
-            return localized(LocalizationKey.usageCollectingData, defaultValue: "Collecting data…")
+            return localized(LocalizationKey.usageNotEnoughHistory, defaultValue: "Not enough usage history")
         }
     }
 
