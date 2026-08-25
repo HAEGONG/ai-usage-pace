@@ -5,6 +5,8 @@ enum UsagePoolID: String, Codable, Sendable, CaseIterable {
     case otherModels
     case grokBotWeekly
     case grokWeekly
+    case codexSession
+    case codexWeekly
 
     var title: String {
         switch self {
@@ -16,6 +18,10 @@ enum UsagePoolID: String, Codable, Sendable, CaseIterable {
             "Grok Bot"
         case .grokWeekly:
             "Grok CLI"
+        case .codexSession:
+            "Codex Session"
+        case .codexWeekly:
+            "Codex Weekly"
         }
     }
 
@@ -29,6 +35,10 @@ enum UsagePoolID: String, Codable, Sendable, CaseIterable {
             LocalizationKey.usageGrokBot
         case .grokWeekly:
             LocalizationKey.usageGrokCLI
+        case .codexSession:
+            LocalizationKey.usageCodexSession
+        case .codexWeekly:
+            LocalizationKey.usageCodexWeekly
         }
     }
 
@@ -42,6 +52,10 @@ enum UsagePoolID: String, Codable, Sendable, CaseIterable {
             "B"
         case .grokWeekly:
             "G"
+        case .codexSession:
+            "Cs"
+        case .codexWeekly:
+            "Cx"
         }
     }
 }

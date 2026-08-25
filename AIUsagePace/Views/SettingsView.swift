@@ -23,6 +23,7 @@ struct SettingsView: View {
                 Text(LocalizedStringKey(LocalizationKey.settingsCursorDescription))
                 Text(LocalizedStringKey(LocalizationKey.settingsGrokBotDescription))
                 Text(LocalizedStringKey(LocalizationKey.settingsGrokCLIDescription))
+                Text(LocalizedStringKey(LocalizationKey.settingsCodexDescription))
             }
             Section(LocalizedStringKey(LocalizationKey.settingsPrivacy)) {
                 Text(LocalizedStringKey(LocalizationKey.settingsPrivacyDescription))

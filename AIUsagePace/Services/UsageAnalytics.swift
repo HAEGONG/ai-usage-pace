@@ -441,7 +441,13 @@ enum UsageAnalytics {
         switch pool {
         case .cursorModels, .otherModels:
             return .monthly
-        case .grokBotWeekly, .grokWeekly:
+        case .grokBotWeekly, .grokWeekly, .codexWeekly:
+            return .weekly
+        case .codexSession:
+            // The short Codex window is only a few hours long, so it never
+            // accumulates a cycle long enough to forecast from. It is treated as
+            // weekly so the pool still reports "not enough history" instead of a
+            // projection built from a handful of minutes.
             return .weekly
         }
     }

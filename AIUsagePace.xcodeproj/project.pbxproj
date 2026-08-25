@@ -38,6 +38,11 @@
 		B130 /* AppLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F130 /* AppLanguage.swift */; };
 		B131 /* LanguageSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F131 /* LanguageSettings.swift */; };
 		B132 /* AppLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F132 /* AppLocalization.swift */; };
+		B135 /* CodexAuthReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F135 /* CodexAuthReader.swift */; };
+		B136 /* CodexAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F136 /* CodexAPIClient.swift */; };
+		B137 /* CodexModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F137 /* CodexModels.swift */; };
+		B138 /* CodexUsageMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F138 /* CodexUsageMapper.swift */; };
+		B139 /* CodexUsageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F139 /* CodexUsageProvider.swift */; };
 		B220 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F133 /* Localizable.xcstrings */; };
 		B221 /* Localizable.xcstrings in Test Resources */ = {isa = PBXBuildFile; fileRef = F133 /* Localizable.xcstrings */; };
 		B222 /* AppLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F220 /* AppLanguageTests.swift */; };
@@ -61,6 +66,10 @@
 		B217 /* CursorUsageProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F217 /* CursorUsageProviderTests.swift */; };
 		B218 /* FixturePrivacyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F218 /* FixturePrivacyTests.swift */; };
 		B219 /* sand-usage-status-with-reset.json in Resources */ = {isa = PBXBuildFile; fileRef = F219 /* sand-usage-status-with-reset.json */; };
+		B224 /* CodexAuthReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F221 /* CodexAuthReaderTests.swift */; };
+		B225 /* CodexMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F222 /* CodexMapperTests.swift */; };
+		B226 /* CodexAPIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F223 /* CodexAPIClientTests.swift */; };
+		B227 /* wham-usage-plus-weekly.json in Resources */ = {isa = PBXBuildFile; fileRef = F224 /* wham-usage-plus-weekly.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,6 +119,11 @@
 		F132 /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
 		F133 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F134 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F135 /* CodexAuthReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexAuthReader.swift; sourceTree = "<group>"; };
+		F136 /* CodexAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexAPIClient.swift; sourceTree = "<group>"; };
+		F137 /* CodexModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexModels.swift; sourceTree = "<group>"; };
+		F138 /* CodexUsageMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexUsageMapper.swift; sourceTree = "<group>"; };
+		F139 /* CodexUsageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexUsageProvider.swift; sourceTree = "<group>"; };
 		F220 /* AppLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguageTests.swift; sourceTree = "<group>"; };
 		F201 /* CursorAuthReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAuthReaderTests.swift; sourceTree = "<group>"; };
 		F202 /* RefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshServiceTests.swift; sourceTree = "<group>"; };
@@ -130,6 +144,10 @@
 		F217 /* CursorUsageProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorUsageProviderTests.swift; sourceTree = "<group>"; };
 		F218 /* FixturePrivacyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixturePrivacyTests.swift; sourceTree = "<group>"; };
 		F219 /* sand-usage-status-with-reset.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "sand-usage-status-with-reset.json"; sourceTree = "<group>"; };
+		F221 /* CodexAuthReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexAuthReaderTests.swift; sourceTree = "<group>"; };
+		F222 /* CodexMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexMapperTests.swift; sourceTree = "<group>"; };
+		F223 /* CodexAPIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexAPIClientTests.swift; sourceTree = "<group>"; };
+		F224 /* wham-usage-plus-weekly.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "wham-usage-plus-weekly.json"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -159,6 +177,7 @@
 				B213 /* billing-credits-weekly.json in Resources */,
 				B214 /* sand-usage-status-subscribed.json in Resources */,
 				B219 /* sand-usage-status-with-reset.json in Resources */,
+				B227 /* wham-usage-plus-weekly.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,8 +260,21 @@
 				F105 /* UsageProvider.swift */,
 				GCURSOR /* Cursor */,
 				GGROK /* Grok */,
+				GCODEX /* Codex */,
 			);
 			path = Providers;
+			sourceTree = "<group>";
+		};
+		GCODEX /* Codex */ = {
+			isa = PBXGroup;
+			children = (
+				F135 /* CodexAuthReader.swift */,
+				F136 /* CodexAPIClient.swift */,
+				F137 /* CodexModels.swift */,
+				F138 /* CodexUsageMapper.swift */,
+				F139 /* CodexUsageProvider.swift */,
+			);
+			path = Codex;
 			sourceTree = "<group>";
 		};
 		GGROK /* Grok */ = {
@@ -325,6 +357,9 @@
 				F216 /* GrokBotAPIClientTests.swift */,
 				F217 /* CursorUsageProviderTests.swift */,
 				F218 /* FixturePrivacyTests.swift */,
+				F221 /* CodexAuthReaderTests.swift */,
+				F222 /* CodexMapperTests.swift */,
+				F223 /* CodexAPIClientTests.swift */,
 			);
 			path = AIUsagePaceTests;
 			sourceTree = "<group>";
@@ -336,6 +371,7 @@
 				F213 /* billing-credits-weekly.json */,
 				F214 /* sand-usage-status-subscribed.json */,
 				F219 /* sand-usage-status-with-reset.json */,
+				F224 /* wham-usage-plus-weekly.json */,
 			);
 			path = Fixtures;
 			sourceTree = "<group>";
@@ -453,6 +489,11 @@
 				B130 /* AppLanguage.swift in Sources */,
 				B131 /* LanguageSettings.swift in Sources */,
 				B132 /* AppLocalization.swift in Sources */,
+				B135 /* CodexAuthReader.swift in Sources */,
+				B136 /* CodexAPIClient.swift in Sources */,
+				B137 /* CodexModels.swift in Sources */,
+				B138 /* CodexUsageMapper.swift in Sources */,
+				B139 /* CodexUsageProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -476,6 +517,9 @@
 				B217 /* CursorUsageProviderTests.swift in Sources */,
 				B218 /* FixturePrivacyTests.swift in Sources */,
 				B222 /* AppLanguageTests.swift in Sources */,
+				B224 /* CodexAuthReaderTests.swift in Sources */,
+				B225 /* CodexMapperTests.swift in Sources */,
+				B226 /* CodexAPIClientTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,6 +10,7 @@ struct AllowlistedHTTPClient: HTTPClient {
         "www.cursor.com",
         "api2.cursor.sh",
         "cli-chat-proxy.grok.com",
+        "chatgpt.com",
     ]
 
     private let session: URLSession

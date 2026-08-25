@@ -29,6 +29,7 @@ enum LocalizationKey {
     static let settingsCursorDescription = "settings.cursor_description"
     static let settingsGrokBotDescription = "settings.grok_bot_description"
     static let settingsGrokCLIDescription = "settings.grok_cli_description"
+    static let settingsCodexDescription = "settings.codex_description"
     static let settingsPrivacy = "settings.privacy"
     static let settingsPrivacyDescription = "settings.privacy.description"
     static let settingsHistoryDescription = "settings.history.description"
@@ -49,11 +50,14 @@ enum LocalizationKey {
 
     static let providerCursor = "provider.cursor"
     static let providerGrokCLI = "provider.grok_cli"
+    static let providerCodex = "provider.codex"
 
     static let usageCursorModels = "usage.pool.cursor_models"
     static let usageOtherModels = "usage.pool.other_models"
     static let usageGrokBot = "usage.pool.grok_bot"
     static let usageGrokCLI = "usage.pool.grok_cli"
+    static let usageCodexSession = "usage.pool.codex_session"
+    static let usageCodexWeekly = "usage.pool.codex_weekly"
     static let usagePoolError = "usage.pool_error"
     static let usageUsedToday = "usage.used_today"
     static let usagePace = "usage.pace"
@@ -72,6 +76,7 @@ enum LocalizationKey {
         switch id {
         case "cursor": providerCursor
         case "grok": providerGrokCLI
+        case "codex": providerCodex
         default: "provider.\(id)"
         }
     }

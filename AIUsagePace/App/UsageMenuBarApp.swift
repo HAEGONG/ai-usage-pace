@@ -15,6 +15,7 @@ struct UsageMenuBarApp: App {
             providers: [
                 CursorUsageProvider(),
                 GrokUsageProvider(),
+                CodexUsageProvider(),
             ],
             history: UsageHistoryStore()
         )

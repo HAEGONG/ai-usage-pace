@@ -26,7 +26,7 @@ files that import Foundation only:
 
 - `AIUsagePace/Models/*` (except nothing Apple-only)
 - `AIUsagePace/Utilities/ISO8601Timestamp.swift`
-- `AIUsagePace/Providers/{Cursor,Grok}/{*Models,*UsageMapper}.swift`
+- `AIUsagePace/Providers/{Cursor,Grok,Codex}/{*Models,*UsageMapper}.swift`
 
 Files that are **not** Linux-compilable: everything under `App/`, `Views/`,
 `Services/RefreshService.swift` (AppKit + Combine), and

@@ -197,7 +197,11 @@ final class RefreshService: ObservableObject {
     }
 
     private func identityError(for providerID: String) -> AppError {
-        providerID == "grok" ? .unableToReadGrokSession : .unableToReadCursorSession
+        switch providerID {
+        case "grok": .unableToReadGrokSession
+        case "codex": .unableToReadCodexSession
+        default: .unableToReadCursorSession
+        }
     }
 
     private func successKey(providerID: String, fingerprint: String) -> String {

@@ -18,6 +18,23 @@
         }
       }
     },
+    "error.codex_login_not_found" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex login not found"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex 로그인 정보를 찾을 수 없습니다"
+          }
+        }
+      }
+    },
     "error.cursor_login_not_found" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -99,6 +116,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "세션이 만료되었습니다"
+          }
+        }
+      }
+    },
+    "error.unable_to_read_codex_session" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to read Codex session"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex 세션을 읽을 수 없습니다"
           }
         }
       }
@@ -324,6 +358,23 @@
         }
       }
     },
+    "provider.codex" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ChatGPT (Codex)"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ChatGPT (Codex)"
+          }
+        }
+      }
+    },
     "provider.cursor" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -354,6 +405,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Grok CLI"
+          }
+        }
+      }
+    },
+    "recovery.codex_login" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run codex login, then click Refresh."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "codex login을 실행한 다음 ‘새로 고침’을 클릭해 주세요."
           }
         }
       }
@@ -562,6 +630,23 @@
         }
       }
     },
+    "settings.codex_description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex Session and Codex Weekly are the ChatGPT plan limits read from your Codex login."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex Session과 Codex Weekly는 Codex 로그인에서 읽은 ChatGPT 플랜 한도입니다."
+          }
+        }
+      }
+    },
     "settings.cursor_description" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -738,13 +823,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Usage Pace reads local sign-in information from Cursor and Grok CLI only to retrieve usage. It does not read refresh tokens, copy credential files, or store credentials."
+            "value" : "AI Usage Pace reads local sign-in information from Cursor, Grok CLI, and Codex only to retrieve usage. It does not read refresh tokens, copy credential files, or store credentials."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "AI Usage Pace는 사용량을 조회하기 위해서만 Cursor와 Grok CLI의 로컬 로그인 정보를 읽습니다. 리프레시 토큰을 읽거나, 인증 정보 파일을 복사하거나, 인증 정보를 저장하지 않습니다."
+            "value" : "AI Usage Pace는 사용량을 조회하기 위해서만 Cursor, Grok CLI, Codex의 로컬 로그인 정보를 읽습니다. 리프레시 토큰을 읽거나, 인증 정보 파일을 복사하거나, 인증 정보를 저장하지 않습니다."
           }
         }
       }
@@ -915,6 +1000,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
+    "usage.pool.codex_session" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex Session"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex Session"
+          }
+        }
+      }
+    },
+    "usage.pool.codex_weekly" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex Weekly"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Codex Weekly"
           }
         }
       }

@@ -194,6 +194,8 @@ struct ProviderIcon: View {
             "CursorIcon"
         case "grok":
             "GrokIcon"
+        case "codex":
+            "CodexIcon"
         default:
             nil
         }

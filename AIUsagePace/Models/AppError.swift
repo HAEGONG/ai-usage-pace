@@ -4,9 +4,11 @@ enum AppError: Error, Equatable, Sendable, CaseIterable {
     case cursorNotInstalled
     case cursorLoginNotFound
     case grokLoginNotFound
+    case codexLoginNotFound
     case sessionExpired
     case unableToReadCursorSession
     case unableToReadGrokSession
+    case unableToReadCodexSession
     case unsupportedAccountType
     case unsupportedResponseSchema
     case usageUnavailable
@@ -24,12 +26,16 @@ extension AppError: LocalizedError {
             "error.cursor_login_not_found"
         case .grokLoginNotFound:
             "error.grok_login_not_found"
+        case .codexLoginNotFound:
+            "error.codex_login_not_found"
         case .sessionExpired:
             "error.session_expired"
         case .unableToReadCursorSession:
             "error.unable_to_read_cursor_session"
         case .unableToReadGrokSession:
             "error.unable_to_read_grok_session"
+        case .unableToReadCodexSession:
+            "error.unable_to_read_codex_session"
         case .unsupportedAccountType:
             "error.unsupported_account_type"
         case .unsupportedResponseSchema:
@@ -53,12 +59,16 @@ extension AppError: LocalizedError {
             "Cursor login not found"
         case .grokLoginNotFound:
             "Grok CLI login not found"
+        case .codexLoginNotFound:
+            "Codex login not found"
         case .sessionExpired:
             "Session expired"
         case .unableToReadCursorSession:
             "Unable to read Cursor session"
         case .unableToReadGrokSession:
             "Unable to read Grok CLI session"
+        case .unableToReadCodexSession:
+            "Unable to read Codex session"
         case .unsupportedAccountType:
             "Unsupported account type"
         case .unsupportedResponseSchema:
@@ -82,6 +92,8 @@ extension AppError: LocalizedError {
             "recovery.cursor_login_not_found"
         case .grokLoginNotFound, .unableToReadGrokSession:
             "recovery.grok_login"
+        case .codexLoginNotFound, .unableToReadCodexSession:
+            "recovery.codex_login"
         case .sessionExpired, .authenticationExpired:
             "recovery.sign_in_again"
         case .unableToReadCursorSession:
@@ -107,6 +119,8 @@ extension AppError: LocalizedError {
             "Open Cursor and sign in, then refresh."
         case .grokLoginNotFound, .unableToReadGrokSession:
             "Run grok login, then click Refresh."
+        case .codexLoginNotFound, .unableToReadCodexSession:
+            "Run codex login, then click Refresh."
         case .sessionExpired, .authenticationExpired:
             "Sign in again, then refresh."
         case .unableToReadCursorSession:
