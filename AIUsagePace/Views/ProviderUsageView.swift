@@ -79,7 +79,7 @@ private struct PoolUsageRow: View {
             return "Reset pending"
         case .notEnoughData, nil:
             return "Not enough data"
-        case .ready, .resetsBeforeExhaustion:
+        case .ready, .resetsBeforeExhaustion, .noExhaustionProjected:
             if let ratio = stats?.paceRatio {
                 let text = String(format: "%.1f×", ratio)
                 return stats?.lowConfidence == true ? "\(text) (low confidence)" : text
@@ -96,6 +96,8 @@ private struct PoolUsageRow: View {
             return "Reset pending"
         case .resetsBeforeExhaustion:
             return "Will likely reset before exhaustion"
+        case .noExhaustionProjected:
+            return "No exhaustion projected"
         case .notEnoughData, nil:
             return "Not enough data"
         case .ready:

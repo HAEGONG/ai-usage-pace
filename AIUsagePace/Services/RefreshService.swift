@@ -148,11 +148,9 @@ final class RefreshService: ObservableObject {
             return .success
         } catch let appError as AppError {
             applyFetchFailure(providerID: provider.id, fingerprint: fingerprint, error: appError)
-            await updateStats(providerID: provider.id, snapshot: state(id: provider.id)?.snapshot)
             return appError == .networkFailure ? .networkFailure : .other
         } catch {
             applyFetchFailure(providerID: provider.id, fingerprint: fingerprint, error: .networkFailure)
-            await updateStats(providerID: provider.id, snapshot: state(id: provider.id)?.snapshot)
             return .networkFailure
         }
     }

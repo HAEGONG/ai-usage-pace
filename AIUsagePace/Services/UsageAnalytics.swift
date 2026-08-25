@@ -115,7 +115,7 @@ enum UsageAnalytics {
                 paceRatio: 0,
                 exhaustionAt: nil,
                 lowConfidence: lowConfidence,
-                message: .ready
+                message: .noExhaustionProjected
             )
         }
 

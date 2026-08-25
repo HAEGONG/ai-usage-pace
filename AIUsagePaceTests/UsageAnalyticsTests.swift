@@ -46,6 +46,23 @@ final class UsageAnalyticsTests: XCTestCase {
         XCTAssertEqual(pool?.lowConfidence, false)
     }
 
+    func testFlatUsageHasNoExhaustionProjected() {
+        let cycleEnd = now.addingTimeInterval(10 * 3600)
+        let samples = [
+            snapshot(at: now.addingTimeInterval(-3 * 3600), percent: 40, cycleEnd: cycleEnd),
+            snapshot(at: now.addingTimeInterval(-2 * 3600), percent: 40, cycleEnd: cycleEnd),
+            snapshot(at: now.addingTimeInterval(-1 * 3600), percent: 40, cycleEnd: cycleEnd),
+            snapshot(at: now, percent: 40, cycleEnd: cycleEnd),
+        ]
+
+        let stats = UsageAnalytics.stats(from: samples, current: samples[3], now: now, calendar: calendar)
+        let pool = stats.pools[.cursorModels]
+
+        XCTAssertEqual(pool?.message, .noExhaustionProjected)
+        XCTAssertEqual(pool?.paceRatio, 0)
+        XCTAssertNil(pool?.exhaustionAt)
+    }
+
     func testAtLimitHasNoExhaustion() {
         let cycleEnd = now.addingTimeInterval(10 * 3600)
         let samples = (0..<4).map { index in

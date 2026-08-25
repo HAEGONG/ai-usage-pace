@@ -15,6 +15,7 @@ enum PoolMessage: Equatable, Sendable {
     case atLimit
     case resetPending
     case resetsBeforeExhaustion
+    case noExhaustionProjected
 }
 
 struct UsageStats: Equatable, Sendable {

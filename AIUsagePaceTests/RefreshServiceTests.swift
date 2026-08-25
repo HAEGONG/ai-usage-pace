@@ -127,6 +127,48 @@ final class RefreshServiceTests: XCTestCase {
     }
 
     @MainActor
+    func testNetworkFailureKeepsLastSuccessfulStats() async throws {
+        let provider = MockUsageProvider()
+        let capturedAt = Date(timeIntervalSince1970: Date().timeIntervalSince1970.rounded(.down))
+        let cycleStart = capturedAt.addingTimeInterval(-20 * 24 * 3600)
+        let cycleEnd = capturedAt.addingTimeInterval(10 * 24 * 3600)
+
+        func snapshot(hoursBefore: TimeInterval, percent: Double) -> UsageSnapshot {
+            UsageSnapshot(
+                providerID: "cursor",
+                accountFingerprint: "aaa",
+                capturedAt: capturedAt.addingTimeInterval(-hoursBefore * 3600),
+                cycleStart: cycleStart,
+                cycleEnd: cycleEnd,
+                buckets: [
+                    UsageBucket(id: .cursorModels, meter: .metered(percentUsed: percent, absolute: nil)),
+                ],
+                membershipType: "pro",
+                limitType: "user",
+                totalPercentUsed: nil
+            )
+        }
+
+        let history = InMemoryUsageHistory(records: [
+            snapshot(hoursBefore: 3, percent: 10),
+            snapshot(hoursBefore: 2, percent: 20),
+            snapshot(hoursBefore: 1, percent: 30),
+        ])
+        let service = RefreshService(providers: [provider], history: history)
+        provider.nextSnapshot = snapshot(hoursBefore: 0, percent: 40)
+
+        await service.performRefresh()
+        let successfulStats = try XCTUnwrap(service.state(id: "cursor")?.stats)
+        XCTAssertEqual(successfulStats.pools[.cursorModels]?.message, .ready)
+
+        try await Task.sleep(nanoseconds: 20_000_000)
+        provider.nextError = .networkFailure
+        await service.performRefresh()
+
+        XCTAssertEqual(service.state(id: "cursor")?.stats, successfulStats)
+    }
+
+    @MainActor
     func testHistoryFailureKeepsCurrentUsageAndShowsWarning() async {
         let provider = MockUsageProvider()
         let service = RefreshService(
@@ -302,6 +344,22 @@ private struct FailingUsageHistory: UsageHistoryWriting {
 
     func snapshots(for fingerprint: String) async throws -> [UsageSnapshot] {
         throw AppError.usageHistoryUnavailable
+    }
+}
+
+private actor InMemoryUsageHistory: UsageHistoryWriting {
+    private var records: [UsageSnapshot]
+
+    init(records: [UsageSnapshot]) {
+        self.records = records
+    }
+
+    func record(_ snapshot: UsageSnapshot) async throws {
+        records.append(snapshot)
+    }
+
+    func snapshots(for fingerprint: String) async throws -> [UsageSnapshot] {
+        records.filter { $0.accountFingerprint == fingerprint }
     }
 }
 
