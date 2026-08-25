@@ -20,8 +20,13 @@ struct MenuBarView: View {
             }
 
             Divider()
-            Button(LocalizedStringKey(LocalizationKey.menuRefresh)) {
-                refreshService.refresh()
+            HStack {
+                Button(LocalizedStringKey(LocalizationKey.menuRefresh)) {
+                    refreshService.refresh()
+                }
+                if let lastUpdated {
+                    lastUpdatedLabel(lastUpdated)
+                }
             }
             SettingsLink {
                 Text(LocalizedStringKey(LocalizationKey.menuSettings))
@@ -79,25 +84,29 @@ struct MenuBarView: View {
                     }
                 }
             }
+        }
+    }
 
-            if let lastUpdated = state.lastUpdated {
-                TimelineView(.periodic(from: lastUpdated, by: 1)) { context in
-                    Text(verbatim: AppLocalization.format(
-                        LocalizationKey.menuUpdated,
-                        locale: locale,
-                        arguments: [
-                            AppLocalization.relativeDate(
-                                lastUpdated,
-                                relativeTo: context.date,
-                                locale: locale
-                            )
-                        ],
-                        defaultValue: "Updated %@"
-                    ))
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                }
-            }
+    private var lastUpdated: Date? {
+        refreshService.providerStates.compactMap(\.lastUpdated).max()
+    }
+
+    private func lastUpdatedLabel(_ lastUpdated: Date) -> some View {
+        TimelineView(.periodic(from: lastUpdated, by: 1)) { context in
+            Text(verbatim: AppLocalization.format(
+                LocalizationKey.menuUpdated,
+                locale: locale,
+                arguments: [
+                    AppLocalization.relativeDate(
+                        lastUpdated,
+                        relativeTo: context.date,
+                        locale: locale
+                    )
+                ],
+                defaultValue: "Updated %@"
+            ))
+            .font(.callout)
+            .foregroundStyle(.secondary)
         }
     }
 
