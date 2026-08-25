@@ -36,6 +36,26 @@ final class HistoryStoreTests: XCTestCase {
         XCTAssertEqual(loaded, [first])
     }
 
+    func testDecodesLegacyRecordsWithoutBucketCycles() async throws {
+        let store = UsageHistoryStore(rootDirectory: uniqueDirectory())
+        let fingerprint = "aaa"
+        let url = await store.fileURL(for: fingerprint)
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let line = """
+        {"accountFingerprint":"aaa","payload":{"accountFingerprint":"aaa","buckets":[{"id":"cursorModels","percentUsed":12.5}],"capturedAt":"2026-05-04T08:26:40Z","cycleEnd":"2026-06-03T08:26:40Z","cycleStart":"2026-05-04T08:26:40Z","limitType":"user","membershipType":"pro_plus","providerID":"cursor","totalPercentUsed":null},"schemaVersion":1}
+        """
+        try (line + "\n").write(to: url, atomically: true, encoding: .utf8)
+
+        let loaded = try await store.load(fingerprint: fingerprint)
+        XCTAssertEqual(loaded.count, 1)
+        XCTAssertEqual(loaded[0].buckets.map(\.id), [.cursorModels])
+        XCTAssertEqual(loaded[0].buckets[0].percentUsed, 12.5)
+        XCTAssertNil(loaded[0].buckets[0].cycleStart)
+        XCTAssertNil(loaded[0].buckets[0].cycleEnd)
+        XCTAssertEqual(loaded[0].cycleStart, ISO8601Timestamp.date(from: "2026-05-04T08:26:40Z"))
+        XCTAssertEqual(loaded[0].cycleEnd, ISO8601Timestamp.date(from: "2026-06-03T08:26:40Z"))
+    }
+
     func testRetentionKeepsSixtyDaysWhenCyclesAreShorter() {
         let now = Date(timeIntervalSince1970: 2_000_000_000)
         let kept = HistoryRecord(

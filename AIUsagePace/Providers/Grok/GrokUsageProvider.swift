@@ -1,6 +1,6 @@
 struct GrokUsageProvider: UsageProvider {
     let id = "grok"
-    let displayName = "Grok"
+    let displayName = "Grok CLI"
 
     var authReader: GrokAuthReader
     var apiClient: GrokAPIClient

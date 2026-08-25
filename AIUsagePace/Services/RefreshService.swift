@@ -133,7 +133,7 @@ final class RefreshService: ObservableObject {
         do {
             let snapshot = try await provider.fetchUsage()
             let key = successKey(providerID: provider.id, fingerprint: snapshot.accountFingerprint)
-            lastSuccessByKey[key] = snapshot
+            lastSuccessByKey[key] = snapshot.withoutPoolErrors()
             updateState(providerID: provider.id) { state in
                 state.activeFingerprint = snapshot.accountFingerprint
                 state.snapshot = snapshot

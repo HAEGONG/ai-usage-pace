@@ -22,6 +22,10 @@ final class CursorMapperTests: XCTestCase {
         XCTAssertEqual(snapshot.buckets.map(\.id), [.cursorModels, .otherModels])
         XCTAssertEqual(percentUsed(snapshot.buckets[0]), 0.5308333333333334)
         XCTAssertEqual(percentUsed(snapshot.buckets[1]), 0)
+        XCTAssertEqual(snapshot.buckets[0].cycleStart, snapshot.cycleStart)
+        XCTAssertEqual(snapshot.buckets[0].cycleEnd, snapshot.cycleEnd)
+        XCTAssertEqual(snapshot.buckets[1].cycleStart, snapshot.cycleStart)
+        XCTAssertEqual(snapshot.buckets[1].cycleEnd, snapshot.cycleEnd)
         XCTAssertNil(absoluteUsage(snapshot.buckets[0]))
         XCTAssertNil(absoluteUsage(snapshot.buckets[1]))
     }

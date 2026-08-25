@@ -19,20 +19,26 @@ enum CursorUsageMapper {
         let plan = response.individualUsage?.plan
         switch (plan?.autoPercentUsed, plan?.apiPercentUsed) {
         case let (autoPercentUsed?, apiPercentUsed?):
+            let cycleStart = try parseCycleDate(response.billingCycleStart)
+            let cycleEnd = try parseCycleDate(response.billingCycleEnd)
             return UsageSnapshot(
                 providerID: providerID,
                 accountFingerprint: session.accountFingerprint,
                 capturedAt: capturedAt,
-                cycleStart: try parseCycleDate(response.billingCycleStart),
-                cycleEnd: try parseCycleDate(response.billingCycleEnd),
+                cycleStart: cycleStart,
+                cycleEnd: cycleEnd,
                 buckets: [
                     UsageBucket(
                         id: .cursorModels,
-                        meter: .metered(percentUsed: autoPercentUsed, absolute: nil)
+                        meter: .metered(percentUsed: autoPercentUsed, absolute: nil),
+                        cycleStart: cycleStart,
+                        cycleEnd: cycleEnd
                     ),
                     UsageBucket(
                         id: .otherModels,
-                        meter: .metered(percentUsed: apiPercentUsed, absolute: nil)
+                        meter: .metered(percentUsed: apiPercentUsed, absolute: nil),
+                        cycleStart: cycleStart,
+                        cycleEnd: cycleEnd
                     ),
                 ],
                 membershipType: response.membershipType,

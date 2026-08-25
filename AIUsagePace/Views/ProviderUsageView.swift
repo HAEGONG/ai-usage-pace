@@ -10,21 +10,29 @@ struct ProviderUsageView: View {
                 PoolUsageRow(bucket: bucket, stats: stats?.pools[bucket.id])
             }
 
-            if let cycleEnd = snapshot.cycleEnd {
-                labeledRow("Reset", value: cycleEnd.formatted(date: .abbreviated, time: .shortened))
+            ForEach(poolErrorIDs, id: \.self) { pool in
+                if let error = snapshot.poolErrors[pool] {
+                    poolErrorView(pool: pool, error: error)
+                }
             }
         }
     }
 
-    private func labeledRow(_ title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-            Spacer()
-            Text(value)
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
+    private var poolErrorIDs: [UsagePoolID] {
+        snapshot.poolErrors.keys.sorted { $0.rawValue < $1.rawValue }
+    }
+
+    private func poolErrorView(pool: UsagePoolID, error: AppError) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("\(pool.title): \(error.localizedDescription)")
+                .foregroundStyle(.red)
+                .font(.callout)
+            if let recovery = error.recoverySuggestion {
+                Text(recovery)
+                    .foregroundStyle(.secondary)
+                    .font(.caption)
+            }
         }
-        .font(.callout)
     }
 }
 
@@ -46,6 +54,9 @@ private struct PoolUsageRow: View {
             metric("Today", todayText)
             metric("Pace", paceText)
             metric("Exhaustion", exhaustionText)
+            if let cycleEnd = bucket.cycleEnd {
+                metric("Reset", cycleEnd.formatted(date: .abbreviated, time: .shortened))
+            }
         }
     }
 

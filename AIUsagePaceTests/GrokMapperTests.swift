@@ -20,6 +20,8 @@ final class GrokMapperTests: XCTestCase {
         XCTAssertEqual(snapshot.cycleEnd, isoDate("2026-06-08T00:00:00Z"))
         XCTAssertEqual(snapshot.buckets.map(\.id), [.grokWeekly])
         XCTAssertEqual(percentUsed(snapshot.buckets[0]), 42.5)
+        XCTAssertEqual(snapshot.buckets[0].cycleStart, snapshot.cycleStart)
+        XCTAssertEqual(snapshot.buckets[0].cycleEnd, snapshot.cycleEnd)
         XCTAssertNil(absoluteUsage(snapshot.buckets[0]))
     }
 
