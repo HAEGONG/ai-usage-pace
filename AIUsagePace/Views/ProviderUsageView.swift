@@ -62,8 +62,13 @@ private struct PoolUsageRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(LocalizedStringKey(bucket.id.titleLocalizationKey))
-                    .font(.headline)
+                HStack(spacing: 6) {
+                    if bucket.id == .grokWeekly {
+                        ProviderIcon(providerID: "grok")
+                    }
+                    Text(LocalizedStringKey(bucket.id.titleLocalizationKey))
+                }
+                .font(.headline)
                 Spacer()
                 Text(verbatim: UsagePercentFormat.string(bucket.percentUsed, locale: locale))
                     .font(.headline)
@@ -162,7 +167,35 @@ private struct PoolUsageRow: View {
             Text(verbatim: value)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.trailing)
+                .fixedSize(horizontal: true, vertical: false)
         }
         .font(.body)
+    }
+}
+
+struct ProviderIcon: View {
+    let providerID: String
+
+    @ViewBuilder
+    var body: some View {
+        if let assetName {
+            Image(assetName)
+                .resizable()
+                .renderingMode(.template)
+                .foregroundStyle(.primary)
+                .frame(width: 16, height: 16)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private var assetName: String? {
+        switch providerID {
+        case "cursor":
+            "CursorIcon"
+        case "grok":
+            "GrokIcon"
+        default:
+            nil
+        }
     }
 }

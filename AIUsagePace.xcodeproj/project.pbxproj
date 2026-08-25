@@ -41,6 +41,7 @@
 		B220 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F133 /* Localizable.xcstrings */; };
 		B221 /* Localizable.xcstrings in Test Resources */ = {isa = PBXBuildFile; fileRef = F133 /* Localizable.xcstrings */; };
 		B222 /* AppLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F220 /* AppLanguageTests.swift */; };
+		B223 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F134 /* Assets.xcassets */; };
 		B201 /* CursorAuthReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F201 /* CursorAuthReaderTests.swift */; };
 		B202 /* RefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F202 /* RefreshServiceTests.swift */; };
 		B203 /* HTTPClientAllowlistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F203 /* HTTPClientAllowlistTests.swift */; };
@@ -108,6 +109,7 @@
 		F131 /* LanguageSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSettings.swift; sourceTree = "<group>"; };
 		F132 /* AppLocalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLocalization.swift; sourceTree = "<group>"; };
 		F133 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		F134 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F220 /* AppLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLanguageTests.swift; sourceTree = "<group>"; };
 		F201 /* CursorAuthReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAuthReaderTests.swift; sourceTree = "<group>"; };
 		F202 /* RefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshServiceTests.swift; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B223 /* Assets.xcassets in Resources */,
 				B220 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -215,6 +218,7 @@
 		GRES /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F134 /* Assets.xcassets */,
 				F133 /* Localizable.xcstrings */,
 			);
 			path = Resources;

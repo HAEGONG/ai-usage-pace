@@ -37,8 +37,13 @@ struct MenuBarView: View {
     @ViewBuilder
     private func providerSection(_ state: ProviderUsageState) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(LocalizedStringKey(LocalizationKey.provider(state.providerID)))
+            if !hasRedundantProviderHeading(state) {
+                HStack(spacing: 6) {
+                    ProviderIcon(providerID: state.providerID)
+                    Text(LocalizedStringKey(LocalizationKey.provider(state.providerID)))
+                }
                 .font(.headline)
+            }
 
             if let snapshot = state.snapshot {
                 ProviderUsageView(snapshot: snapshot, stats: state.stats)
@@ -86,5 +91,14 @@ struct MenuBarView: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private func hasRedundantProviderHeading(_ state: ProviderUsageState) -> Bool {
+        guard state.providerID == "grok", let snapshot = state.snapshot else {
+            return false
+        }
+        let displayedPools = Set(snapshot.buckets.map(\.id))
+            .union(snapshot.poolErrors.keys)
+        return displayedPools == [.grokWeekly]
     }
 }
