@@ -150,9 +150,9 @@ final class RefreshServiceTests: XCTestCase {
         }
 
         let history = InMemoryUsageHistory(records: [
-            snapshot(hoursBefore: 3, percent: 10),
-            snapshot(hoursBefore: 2, percent: 20),
-            snapshot(hoursBefore: 1, percent: 30),
+            snapshot(hoursBefore: 72, percent: 10),
+            snapshot(hoursBefore: 48, percent: 20),
+            snapshot(hoursBefore: 24, percent: 30),
         ])
         let service = RefreshService(providers: [provider], history: history)
         provider.nextSnapshot = snapshot(hoursBefore: 0, percent: 40)

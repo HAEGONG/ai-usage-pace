@@ -71,6 +71,6 @@ xcodebuild -project AIUsagePace.xcodeproj -scheme AIUsagePace -destination 'plat
 
 Xcode 콘솔에 나타나는 `com.apple.linkd.autoShortcut`과 `Error registering app with intents framework` 메시지는 사용량 조회 오류가 아닙니다. 이 메시지는 로컬 실행 환경에서 macOS가 App Intents 및 단축어를 자동으로 등록하는 과정에서 나타날 수 있습니다. AI Usage Pace는 App Intents를 사용하지 않으므로 메뉴 막대 기능이 정상적으로 작동한다면 이 메시지를 무시해도 됩니다.
 
-앱을 처음 실행한 뒤 몇 시간 동안은 분석할 이력이 충분하지 않아서 `Used today`, `Usage pace`, `Runs out` 항목에 `Collecting data…`가 표시될 수 있습니다. 앱은 15분마다 사용량을 갱신하며, Mac이 잠자기 상태에서 깨어나거나 사용자가 `Refresh`를 선택했을 때도 사용량을 갱신합니다.
+앱을 처음 실행한 뒤 첫 24시간 동안은 밤과 비업무 시간까지 포함한 사용 패턴을 관측하기 위해 `Usage pace`, `Runs out` 항목에 `Collecting data…`가 표시될 수 있습니다. Cursor Models와 Other Models 월간 풀은 현재 월의 요일·시간대별 패턴을 사용합니다. Grok Bot과 Grok CLI 주간 풀은 이전 주기 이력이 있으면 최근 최대 8주 패턴을 현재 주와 혼합하므로, 첫 주가 지난 뒤에는 초기화 직후에도 예측할 수 있습니다. 앱은 15분마다 사용량을 갱신하며, Mac이 잠자기 상태에서 깨어나거나 사용자가 `Refresh`를 선택했을 때도 사용량을 갱신합니다. 새로고침이 불규칙하거나 반복되더라도 예측에서는 경과 시간을 기준으로 15분 구간에 정규화합니다.
 
 메뉴 막대에는 권장 속도 대비 실제 사용 속도의 비율이 가장 높은 사용량 풀이 표시됩니다. 이 비율을 계산할 수 없는 경우에는 현재 사용률이 가장 높은 풀을 표시합니다. `C`, `O`, `B`, `G`는 각각 Cursor Models, Other Models, Grok Bot, Grok CLI를 의미합니다.
