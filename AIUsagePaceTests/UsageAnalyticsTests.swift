@@ -9,7 +9,7 @@ final class UsageAnalyticsTests: XCTestCase {
         return calendar
     }
 
-    func testMonthlyPoolCollectsDataForFirstDay() {
+    func testMonthlyPoolProvidesLowConfidenceFallbackForFirstDay() {
         let cycleStart = now.addingTimeInterval(-24 * 60 * 60)
         let cycleEnd = cycleStart.addingTimeInterval(30 * 24 * 60 * 60)
         let samples = usageSeries(
@@ -29,9 +29,17 @@ final class UsageAnalyticsTests: XCTestCase {
             calendar: calendar
         )
 
-        XCTAssertEqual(stats.pools[.cursorModels]?.message, .notEnoughData)
+        XCTAssertNotEqual(stats.pools[.cursorModels]?.message, .notEnoughData)
         XCTAssertNil(stats.pools[.cursorModels]?.exhaustionAt)
-        XCTAssertNil(stats.pools[.cursorModels]?.paceRatio)
+        XCTAssertNotNil(stats.pools[.cursorModels]?.paceRatio)
+        XCTAssertLessThan(stats.pools[.cursorModels]?.paceRatio ?? 10, 1.1)
+        XCTAssertEqual(stats.pools[.cursorModels]?.confidence, .low)
+        XCTAssertEqual(
+            stats.pools[.cursorModels]?.paceDiagnostics.currentObservationDuration,
+            4 * 60 * 60
+        )
+        XCTAssertEqual(stats.pools[.cursorModels]?.paceDiagnostics.cadence, .monthly)
+        XCTAssertEqual(stats.pools[.cursorModels]?.paceDiagnostics.usesCycleAverageFallback, true)
     }
 
     func testMonthlyLinearRateAndExhaustionAfterMatureObservation() {
@@ -59,6 +67,7 @@ final class UsageAnalyticsTests: XCTestCase {
         XCTAssertEqual(pool?.paceRatio ?? 0, 1, accuracy: 0.0001)
         XCTAssertEqual(pool?.exhaustionAt?.timeIntervalSince(now) ?? 0, 5 * 24 * 60 * 60, accuracy: 1)
         XCTAssertEqual(pool?.lowConfidence, false)
+        XCTAssertEqual(pool?.confidence, .medium)
     }
 
     func testMonthlyFastRateKeepsPaceAboveOneAfterFindingExhaustion() {
@@ -84,6 +93,31 @@ final class UsageAnalyticsTests: XCTestCase {
         XCTAssertEqual(pool?.message, .ready)
         XCTAssertEqual(pool?.paceRatio ?? 0, 2.5, accuracy: 0.0001)
         XCTAssertEqual(pool?.exhaustionAt?.timeIntervalSince(now) ?? 0, 4 * 24 * 60 * 60, accuracy: 1)
+    }
+
+    func testMonthlyForecastBecomesHighConfidenceAfterOneWeek() {
+        let cycleStart = now.addingTimeInterval(-15 * 24 * 60 * 60)
+        let cycleEnd = now.addingTimeInterval(15 * 24 * 60 * 60)
+        let samples = usageSeries(
+            pool: .cursorModels,
+            cycleStart: cycleStart,
+            cycleEnd: cycleEnd,
+            observedStart: now.addingTimeInterval(-8 * 24 * 60 * 60),
+            observedEnd: now,
+            startPercent: 10,
+            ratePerDay: 2
+        )
+
+        let pool = UsageAnalytics.stats(
+            from: samples,
+            current: samples.last!,
+            now: now,
+            calendar: calendar
+        ).pools[.cursorModels]
+
+        XCTAssertEqual(pool?.confidence, .high)
+        XCTAssertEqual(pool?.paceDiagnostics.currentObservationDuration, 8 * 24 * 60 * 60)
+        XCTAssertEqual(pool?.paceDiagnostics.historicalCycleCount, 0)
     }
 
     func testDenseRefreshesDoNotChangeMonthlyForecast() {
@@ -250,6 +284,7 @@ final class UsageAnalyticsTests: XCTestCase {
 
         XCTAssertEqual(pool?.message, .resetsBeforeExhaustion)
         XCTAssertEqual(pool?.lowConfidence, true)
+        XCTAssertEqual(pool?.paceDiagnostics.hasAmbiguousUsageGap, true)
     }
 
     func testTodayInterpolatesAcrossLocalMidnight() {
@@ -379,7 +414,40 @@ final class UsageAnalyticsTests: XCTestCase {
             XCTAssertEqual(stats?.message, .resetsBeforeExhaustion)
             XCTAssertEqual(stats?.paceRatio ?? 0, (10 * (167.0 / 24)) / 99, accuracy: 0.005)
             XCTAssertEqual(stats?.lowConfidence, false)
+            XCTAssertEqual(stats?.confidence, .medium)
+            XCTAssertEqual(stats?.paceDiagnostics.historicalCycleCount, 3)
+            XCTAssertEqual(stats?.paceDiagnostics.cadence, .weekly)
         }
+    }
+
+    func testFiveStablePreviousWeeklyCyclesProduceHighConfidence() {
+        let currentStart = now.addingTimeInterval(-60 * 60)
+        let currentEnd = currentStart.addingTimeInterval(7 * 24 * 60 * 60)
+        var samples = previousWeeklyCycles(
+            pool: .grokWeekly,
+            count: 5,
+            before: currentStart,
+            ratePerDay: 8
+        )
+        let current = snapshot(
+            at: now,
+            pool: .grokWeekly,
+            percent: 1,
+            cycleStart: currentStart,
+            cycleEnd: currentEnd
+        )
+        samples.append(current)
+
+        let pool = UsageAnalytics.stats(
+            from: samples,
+            current: current,
+            now: now,
+            calendar: calendar
+        ).pools[.grokWeekly]
+
+        XCTAssertEqual(pool?.confidence, .high)
+        XCTAssertEqual(pool?.paceDiagnostics.historicalCycleCount, 5)
+        XCTAssertEqual(pool?.paceDiagnostics.historyIsUnstable, false)
     }
 
     func testSinglePreviousWeeklyCycleIsUsableButLowConfidence() {
@@ -409,9 +477,11 @@ final class UsageAnalyticsTests: XCTestCase {
 
         XCTAssertNotEqual(pool?.message, .notEnoughData)
         XCTAssertEqual(pool?.lowConfidence, true)
+        XCTAssertEqual(pool?.confidence, .low)
+        XCTAssertEqual(pool?.paceDiagnostics.historicalCycleCount, 1)
     }
 
-    func testFirstWeeklyCycleAlsoRequiresOneDayOfCurrentData() {
+    func testFirstWeeklyCycleUsesLowConfidenceFallbackDuringFirstDay() {
         let cycleStart = now.addingTimeInterval(-4 * 60 * 60)
         let cycleEnd = cycleStart.addingTimeInterval(7 * 24 * 60 * 60)
         let samples = usageSeries(
@@ -431,7 +501,12 @@ final class UsageAnalyticsTests: XCTestCase {
             calendar: calendar
         ).pools[.grokWeekly]
 
-        XCTAssertEqual(pool?.message, .notEnoughData)
+        XCTAssertNotEqual(pool?.message, .notEnoughData)
+        XCTAssertNotNil(pool?.paceRatio)
+        XCTAssertEqual(pool?.confidence, .low)
+        XCTAssertEqual(pool?.paceDiagnostics.currentObservationDuration, 4 * 60 * 60)
+        XCTAssertEqual(pool?.paceDiagnostics.minimumObservationDuration, 24 * 60 * 60)
+        XCTAssertEqual(pool?.paceDiagnostics.usesCycleAverageFallback, true)
     }
 
     func testWeeklyForecastBlendsCurrentAndHistoricalRates() {
@@ -543,8 +618,10 @@ final class UsageAnalyticsTests: XCTestCase {
             calendar: calendar
         )
 
-        XCTAssertEqual(stats.pools[.cursorModels]?.message, .notEnoughData)
+        XCTAssertNotEqual(stats.pools[.cursorModels]?.message, .notEnoughData)
+        XCTAssertEqual(stats.pools[.cursorModels]?.paceDiagnostics.usesCycleAverageFallback, true)
         XCTAssertNotEqual(stats.pools[.grokBotWeekly]?.message, .notEnoughData)
+        XCTAssertEqual(stats.pools[.grokBotWeekly]?.paceDiagnostics.usesCycleAverageFallback, false)
     }
 
     private func usageSeries(

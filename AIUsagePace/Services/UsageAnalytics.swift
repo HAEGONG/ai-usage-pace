@@ -6,15 +6,11 @@ enum UsageAnalytics {
     static let minimumCurrentSpan: TimeInterval = 24 * 60 * 60
     static let minimumWeeklyBlendSpan: TimeInterval = 2 * 60 * 60
     static let matureCurrentSpan: TimeInterval = 3 * 24 * 60 * 60
+    static let highConfidenceCurrentSpan: TimeInterval = 7 * 24 * 60 * 60
     static let ambiguousGap: TimeInterval = 6 * 60 * 60
     static let slotPriorDuration: TimeInterval = 4 * 60 * 60
     static let weeklyBlendHorizon: TimeInterval = 2 * 24 * 60 * 60
     static let maximumHistoricalWeeklyCycles = 8
-
-    private enum Cadence {
-        case monthly
-        case weekly
-    }
 
     private struct CycleKey: Hashable {
         let start: Date
@@ -65,7 +61,7 @@ enum UsageAnalytics {
         let current: RateProfile?
         let historical: RateProfile?
         let currentWeight: Double
-        let lowConfidence: Bool
+        let confidence: PaceConfidence
 
         func expectedRate(at date: Date, calendar: Calendar) -> Double {
             switch (current, historical) {
@@ -80,6 +76,11 @@ enum UsageAnalytics {
                 return 0
             }
         }
+    }
+
+    private struct ForecastResult {
+        let model: ForecastModel?
+        let diagnostics: PaceDiagnostics
     }
 
     private struct Projection {
@@ -128,12 +129,23 @@ enum UsageAnalytics {
         let currentPercent = percentUsed(current, pool: pool) ?? segment.last?.1 ?? 0
         let today = todayDelta(segment: segment, now: now, calendar: calendar, currentPercent: currentPercent)
 
+        let cadence = cadence(for: pool)
+        let emptyDiagnostics = PaceDiagnostics(
+            cadence: cadence,
+            currentObservationDuration: seriesSpan(segment),
+            historicalCycleCount: 0,
+            minimumObservationDuration: minimumCurrentSpan,
+            hasAmbiguousUsageGap: false,
+            historyIsUnstable: false,
+            usesCycleAverageFallback: false
+        )
+
         guard let currentStart, let cycleEnd = currentEnd else {
-            return unavailableStats(today: today, message: .notEnoughData)
+            return unavailableStats(today: today, message: .notEnoughData, diagnostics: emptyDiagnostics)
         }
 
         if cycleEnd <= now {
-            return unavailableStats(today: today, message: .resetPending)
+            return unavailableStats(today: today, message: .resetPending, diagnostics: emptyDiagnostics)
         }
 
         let remainingPercent = max(0, 100 - currentPercent)
@@ -143,20 +155,27 @@ enum UsageAnalytics {
                 todayIsSinceFirstRecord: today.sinceFirstRecord,
                 paceRatio: nil,
                 exhaustionAt: nil,
-                lowConfidence: false,
+                confidence: .high,
+                paceDiagnostics: emptyDiagnostics,
                 message: .atLimit
             )
         }
 
-        guard let model = forecastModel(
-            cadence: cadence(for: pool),
+        let forecast = forecastModel(
+            cadence: cadence,
             allSamples: allSamples,
             currentCycle: CycleKey(start: currentStart, end: cycleEnd),
             currentSegment: segment,
+            currentPercent: currentPercent,
             now: now,
             calendar: calendar
-        ) else {
-            return unavailableStats(today: today, message: .notEnoughData)
+        )
+        guard let model = forecast.model else {
+            return unavailableStats(
+                today: today,
+                message: .notEnoughData,
+                diagnostics: forecast.diagnostics
+            )
         }
 
         let projection = project(
@@ -174,7 +193,8 @@ enum UsageAnalytics {
                 todayIsSinceFirstRecord: today.sinceFirstRecord,
                 paceRatio: 0,
                 exhaustionAt: nil,
-                lowConfidence: model.lowConfidence,
+                confidence: model.confidence,
+                paceDiagnostics: forecast.diagnostics,
                 message: .noExhaustionProjected
             )
         }
@@ -184,44 +204,73 @@ enum UsageAnalytics {
             todayIsSinceFirstRecord: today.sinceFirstRecord,
             paceRatio: paceRatio,
             exhaustionAt: projection.exhaustionAt,
-            lowConfidence: model.lowConfidence,
+            confidence: model.confidence,
+            paceDiagnostics: forecast.diagnostics,
             message: projection.exhaustionAt == nil ? .resetsBeforeExhaustion : .ready
         )
     }
 
     private static func unavailableStats(
         today: (delta: Double?, sinceFirstRecord: Bool),
-        message: PoolMessage
+        message: PoolMessage,
+        diagnostics: PaceDiagnostics
     ) -> PoolStats {
         PoolStats(
             todayDelta: today.delta,
             todayIsSinceFirstRecord: today.sinceFirstRecord,
             paceRatio: nil,
             exhaustionAt: nil,
-            lowConfidence: false,
+            confidence: .low,
+            paceDiagnostics: diagnostics,
             message: message
         )
     }
 
     private static func forecastModel(
-        cadence: Cadence,
+        cadence: UsageCadence,
         allSamples: [Sample],
         currentCycle: CycleKey,
         currentSegment: [(Date, Double)],
+        currentPercent: Double,
         now: Date,
         calendar: Calendar
-    ) -> ForecastModel? {
+    ) -> ForecastResult {
         let currentSpan = seriesSpan(currentSegment)
         let currentProfile = makeProfile(series: currentSegment, calendar: calendar)
 
         switch cadence {
         case .monthly:
-            guard currentSpan >= minimumCurrentSpan, let currentProfile else { return nil }
-            return ForecastModel(
-                current: currentProfile,
-                historical: nil,
-                currentWeight: 1,
-                lowConfidence: currentSpan < matureCurrentSpan || currentProfile.hasAmbiguousUsageGap
+            let usesFallback = currentSpan < minimumCurrentSpan || currentProfile == nil
+            let diagnostics = PaceDiagnostics(
+                cadence: cadence,
+                currentObservationDuration: currentSpan,
+                historicalCycleCount: 0,
+                minimumObservationDuration: minimumCurrentSpan,
+                hasAmbiguousUsageGap: currentProfile?.hasAmbiguousUsageGap ?? false,
+                historyIsUnstable: false,
+                usesCycleAverageFallback: usesFallback
+            )
+            guard currentSpan >= minimumCurrentSpan, let currentProfile else {
+                return ForecastResult(
+                    model: cycleAverageForecastModel(
+                        currentPercent: currentPercent,
+                        currentCycle: currentCycle,
+                        now: now
+                    ),
+                    diagnostics: diagnostics
+                )
+            }
+            return ForecastResult(
+                model: ForecastModel(
+                    current: currentProfile,
+                    historical: nil,
+                    currentWeight: 1,
+                    confidence: currentConfidence(
+                        observationDuration: currentSpan,
+                        hasAmbiguousUsageGap: currentProfile.hasAmbiguousUsageGap
+                    )
+                ),
+                diagnostics: diagnostics
             )
 
         case .weekly:
@@ -232,28 +281,116 @@ enum UsageAnalytics {
                 calendar: calendar
             )
             let usableCurrent = currentSpan >= minimumWeeklyBlendSpan ? currentProfile : nil
+            let unstableHistory = historical.cycleRates.count >= 2
+                && ratesAreUnstable(historical.cycleRates)
+            let hasAmbiguousUsageGap = historical.profile?.hasAmbiguousUsageGap == true
+                || currentProfile?.hasAmbiguousUsageGap == true
+            let usesFallback = historical.profile == nil
+                && (currentSpan < minimumCurrentSpan || currentProfile == nil)
+            let diagnostics = PaceDiagnostics(
+                cadence: cadence,
+                currentObservationDuration: currentSpan,
+                historicalCycleCount: historical.cycleRates.count,
+                minimumObservationDuration: minimumCurrentSpan,
+                hasAmbiguousUsageGap: hasAmbiguousUsageGap,
+                historyIsUnstable: unstableHistory,
+                usesCycleAverageFallback: usesFallback
+            )
 
             if let historicalProfile = historical.profile {
                 let weight = usableCurrent == nil ? 0 : currentSpan / (currentSpan + weeklyBlendHorizon)
-                let lowConfidence = historical.cycleRates.count < 3
-                    || historicalProfile.hasAmbiguousUsageGap
-                    || ratesAreUnstable(historical.cycleRates)
-                return ForecastModel(
-                    current: usableCurrent,
-                    historical: historicalProfile,
-                    currentWeight: weight,
-                    lowConfidence: lowConfidence
+                return ForecastResult(
+                    model: ForecastModel(
+                        current: usableCurrent,
+                        historical: historicalProfile,
+                        currentWeight: weight,
+                        confidence: historicalConfidence(
+                            cycleCount: historical.cycleRates.count,
+                            hasAmbiguousUsageGap: hasAmbiguousUsageGap,
+                            isUnstable: unstableHistory
+                        )
+                    ),
+                    diagnostics: diagnostics
                 )
             }
 
-            guard currentSpan >= minimumCurrentSpan, let currentProfile else { return nil }
-            return ForecastModel(
-                current: currentProfile,
-                historical: nil,
-                currentWeight: 1,
-                lowConfidence: currentSpan < matureCurrentSpan || currentProfile.hasAmbiguousUsageGap
+            guard currentSpan >= minimumCurrentSpan, let currentProfile else {
+                return ForecastResult(
+                    model: cycleAverageForecastModel(
+                        currentPercent: currentPercent,
+                        currentCycle: currentCycle,
+                        now: now
+                    ),
+                    diagnostics: diagnostics
+                )
+            }
+            return ForecastResult(
+                model: ForecastModel(
+                    current: currentProfile,
+                    historical: nil,
+                    currentWeight: 1,
+                    confidence: currentConfidence(
+                        observationDuration: currentSpan,
+                        hasAmbiguousUsageGap: currentProfile.hasAmbiguousUsageGap
+                    )
+                ),
+                diagnostics: diagnostics
             )
         }
+    }
+
+    private static func cycleAverageForecastModel(
+        currentPercent: Double,
+        currentCycle: CycleKey,
+        now: Date
+    ) -> ForecastModel? {
+        let boundedPercent = min(max(currentPercent, 0), 100)
+        let elapsed = max(0, now.timeIntervalSince(currentCycle.start))
+        let remainingDuration = currentCycle.end.timeIntervalSince(now)
+        guard remainingDuration > 0 else { return nil }
+
+        // A neutral 1.0× prior prevents the first few minutes of usage from
+        // being extrapolated unchanged across the entire cycle. As elapsed
+        // cycle time grows, the cycle-to-date average quickly takes over.
+        let neutralRate = (100 - boundedPercent) / remainingDuration
+        let observedRate = elapsed > 0 ? boundedPercent / elapsed : neutralRate
+        let observedWeight = elapsed / (elapsed + slotPriorDuration)
+        let blendedRate = observedRate * observedWeight + neutralRate * (1 - observedWeight)
+        let profile = RateProfile(
+            global: RateAccumulator(usage: blendedRate, duration: 1),
+            slots: [:],
+            hasAmbiguousUsageGap: false
+        )
+        return ForecastModel(
+            current: profile,
+            historical: nil,
+            currentWeight: 1,
+            confidence: .low
+        )
+    }
+
+    private static func currentConfidence(
+        observationDuration: TimeInterval,
+        hasAmbiguousUsageGap: Bool
+    ) -> PaceConfidence {
+        if observationDuration < matureCurrentSpan || hasAmbiguousUsageGap {
+            return .low
+        }
+        if observationDuration < highConfidenceCurrentSpan {
+            return .medium
+        }
+        return .high
+    }
+
+    private static func historicalConfidence(
+        cycleCount: Int,
+        hasAmbiguousUsageGap: Bool,
+        isUnstable: Bool
+    ) -> PaceConfidence {
+        if cycleCount < 3 || hasAmbiguousUsageGap || isUnstable {
+            return .low
+        }
+        return cycleCount < 5 ? .medium : .high
     }
 
     private static func historicalWeeklyProfiles(
@@ -437,7 +574,7 @@ enum UsageAnalytics {
             .sorted { $0.date < $1.date }
     }
 
-    private static func cadence(for pool: UsagePoolID) -> Cadence {
+    private static func cadence(for pool: UsagePoolID) -> UsageCadence {
         switch pool {
         case .cursorModels, .otherModels:
             return .monthly

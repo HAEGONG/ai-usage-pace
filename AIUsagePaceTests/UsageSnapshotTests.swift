@@ -56,7 +56,16 @@ final class UsageSnapshotTests: XCTestCase {
                 todayIsSinceFirstRecord: false,
                 paceRatio: 0.5,
                 exhaustionAt: nil,
-                lowConfidence: false,
+                confidence: .high,
+                paceDiagnostics: PaceDiagnostics(
+                    cadence: .monthly,
+                    currentObservationDuration: 0,
+                    historicalCycleCount: 0,
+                    minimumObservationDuration: 0,
+                    hasAmbiguousUsageGap: false,
+                    historyIsUnstable: false,
+                    usesCycleAverageFallback: false
+                ),
                 message: .ready
             ),
             .otherModels: PoolStats(
@@ -64,7 +73,16 @@ final class UsageSnapshotTests: XCTestCase {
                 todayIsSinceFirstRecord: false,
                 paceRatio: 2.0,
                 exhaustionAt: nil,
-                lowConfidence: false,
+                confidence: .high,
+                paceDiagnostics: PaceDiagnostics(
+                    cadence: .monthly,
+                    currentObservationDuration: 0,
+                    historicalCycleCount: 0,
+                    minimumObservationDuration: 0,
+                    hasAmbiguousUsageGap: false,
+                    historyIsUnstable: false,
+                    usesCycleAverageFallback: false
+                ),
                 message: .ready
             ),
         ])
