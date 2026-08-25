@@ -149,7 +149,14 @@ struct HistorySnapshot: Codable, Equatable, Sendable {
         capturedAt = snapshot.capturedAt
         cycleStart = snapshot.cycleStart
         cycleEnd = snapshot.cycleEnd
-        buckets = snapshot.buckets.map { HistoryBucket(id: $0.id, percentUsed: $0.percentUsed) }
+        buckets = snapshot.buckets.map {
+            HistoryBucket(
+                id: $0.id,
+                percentUsed: $0.percentUsed,
+                cycleStart: $0.cycleStart,
+                cycleEnd: $0.cycleEnd
+            )
+        }
         membershipType = snapshot.membershipType
         limitType = snapshot.limitType
         totalPercentUsed = snapshot.totalPercentUsed
@@ -163,7 +170,12 @@ struct HistorySnapshot: Codable, Equatable, Sendable {
             cycleStart: cycleStart,
             cycleEnd: cycleEnd,
             buckets: buckets.map {
-                UsageBucket(id: $0.id, meter: .metered(percentUsed: $0.percentUsed, absolute: nil))
+                UsageBucket(
+                    id: $0.id,
+                    meter: .metered(percentUsed: $0.percentUsed, absolute: nil),
+                    cycleStart: $0.cycleStart,
+                    cycleEnd: $0.cycleEnd
+                )
             },
             membershipType: membershipType,
             limitType: limitType,
@@ -175,6 +187,20 @@ struct HistorySnapshot: Codable, Equatable, Sendable {
 struct HistoryBucket: Codable, Equatable, Sendable {
     var id: UsagePoolID
     var percentUsed: Double
+    var cycleStart: Date?
+    var cycleEnd: Date?
+
+    init(
+        id: UsagePoolID,
+        percentUsed: Double,
+        cycleStart: Date? = nil,
+        cycleEnd: Date? = nil
+    ) {
+        self.id = id
+        self.percentUsed = percentUsed
+        self.cycleStart = cycleStart
+        self.cycleEnd = cycleEnd
+    }
 }
 
 struct NoOpUsageHistory: UsageHistoryWriting {

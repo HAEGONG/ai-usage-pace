@@ -33,9 +33,11 @@ enum UsageAnalytics {
         now: Date,
         calendar: Calendar
     ) -> PoolStats {
+        let currentStart = cycleStart(current, pool: pool)
+        let currentEnd = cycleEnd(current, pool: pool)
         let series = snapshots
             .filter { $0.accountFingerprint == current.accountFingerprint }
-            .filter { $0.cycleStart == current.cycleStart && $0.cycleEnd == current.cycleEnd }
+            .filter { cycleStart($0, pool: pool) == currentStart && cycleEnd($0, pool: pool) == currentEnd }
             .compactMap { snapshot -> (Date, Double)? in
                 guard let percent = percentUsed(snapshot, pool: pool) else { return nil }
                 return (snapshot.capturedAt, percent)
@@ -46,7 +48,7 @@ enum UsageAnalytics {
         let currentPercent = percentUsed(current, pool: pool) ?? segment.last?.1 ?? 0
         let today = todayDelta(segment: segment, now: now, calendar: calendar, currentPercent: currentPercent)
 
-        guard let cycleEnd = current.cycleEnd else {
+        guard let cycleEnd = currentEnd else {
             return PoolStats(
                 todayDelta: today.delta,
                 todayIsSinceFirstRecord: today.sinceFirstRecord,
@@ -193,5 +195,13 @@ enum UsageAnalytics {
 
     private static func percentUsed(_ snapshot: UsageSnapshot, pool: UsagePoolID) -> Double? {
         snapshot.buckets.first { $0.id == pool }?.percentUsed
+    }
+
+    private static func cycleStart(_ snapshot: UsageSnapshot, pool: UsagePoolID) -> Date? {
+        snapshot.buckets.first { $0.id == pool }?.cycleStart(in: snapshot) ?? snapshot.cycleStart
+    }
+
+    private static func cycleEnd(_ snapshot: UsageSnapshot, pool: UsagePoolID) -> Date? {
+        snapshot.buckets.first { $0.id == pool }?.cycleEnd(in: snapshot) ?? snapshot.cycleEnd
     }
 }

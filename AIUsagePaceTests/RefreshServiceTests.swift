@@ -204,6 +204,95 @@ final class RefreshServiceTests: XCTestCase {
         await service.performRefresh()
         XCTAssertEqual(service.scheduledRefreshInterval, RefreshService.defaultRefreshInterval)
     }
+
+    @MainActor
+    func testCursorAccountSwitchReplacesGrokBotAndLeavesGrokCLI() async {
+        let cursor = MockUsageProvider()
+        let grok = MockUsageProvider(id: "grok", displayName: "Grok CLI", fingerprint: "ggg")
+        let service = RefreshService(providers: [cursor, grok])
+        grok.nextSnapshot = .grokStub(fingerprint: "ggg", percent: 42.5)
+        cursor.nextSnapshot = .cursorWithGrokBot(fingerprint: "aaa", cursorPercent: 10, grokBotPercent: 80)
+
+        await service.performRefresh()
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot?.buckets.first { $0.id == .grokBotWeekly }?.percentUsed, 80)
+        let grokSnapshot = service.state(id: "grok")?.snapshot
+
+        cursor.fingerprint = "bbb"
+        cursor.nextSnapshot = .cursorWithGrokBot(fingerprint: "bbb", cursorPercent: 5, grokBotPercent: 15)
+        await service.performRefresh()
+
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot?.accountFingerprint, "bbb")
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot?.buckets.first { $0.id == .grokBotWeekly }?.percentUsed, 15)
+        XCTAssertEqual(service.state(id: "grok")?.snapshot, grokSnapshot)
+        XCTAssertNil(service.state(id: "grok")?.error)
+    }
+
+    @MainActor
+    func testCursorLogoutClearsGrokBotAndLeavesGrokCLI() async {
+        let cursor = MockUsageProvider()
+        let grok = MockUsageProvider(id: "grok", displayName: "Grok CLI", fingerprint: "ggg")
+        let service = RefreshService(providers: [cursor, grok])
+        cursor.nextSnapshot = .cursorWithGrokBot(fingerprint: "aaa", cursorPercent: 10, grokBotPercent: 80)
+        grok.nextSnapshot = .grokStub(fingerprint: "ggg", percent: 42.5)
+        await service.performRefresh()
+
+        cursor.fingerprintError = .cursorLoginNotFound
+        await service.performRefresh()
+
+        XCTAssertNil(service.state(id: "cursor")?.snapshot)
+        XCTAssertEqual(service.state(id: "cursor")?.error, .cursorLoginNotFound)
+        XCTAssertEqual(service.state(id: "grok")?.snapshot?.buckets.first?.percentUsed, 42.5)
+        XCTAssertNil(service.state(id: "grok")?.error)
+    }
+
+    @MainActor
+    func testGrokBotPoolErrorDoesNotFailCursorOrGrokCLI() async {
+        let cursor = MockUsageProvider()
+        let grok = MockUsageProvider(id: "grok", displayName: "Grok CLI", fingerprint: "ggg")
+        let service = RefreshService(providers: [cursor, grok])
+        cursor.nextSnapshot = UsageSnapshot.stub(fingerprint: "aaa", percent: 8)
+            .withPoolError(.grokBotWeekly, .authenticationExpired)
+        grok.nextSnapshot = .grokStub(fingerprint: "ggg", percent: 42.5)
+
+        await service.performRefresh()
+
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot?.buckets.map(\.id), [.cursorModels])
+        XCTAssertNil(service.state(id: "cursor")?.error)
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot?.poolErrors[.grokBotWeekly], .authenticationExpired)
+        XCTAssertEqual(service.state(id: "grok")?.snapshot?.buckets.first?.id, .grokWeekly)
+        XCTAssertNil(service.state(id: "grok")?.error)
+    }
+
+    @MainActor
+    func testGrokCLIFailureKeepsGrokBot() async {
+        let cursor = MockUsageProvider()
+        let grok = MockUsageProvider(id: "grok", displayName: "Grok CLI", fingerprint: "ggg")
+        let service = RefreshService(providers: [cursor, grok])
+        cursor.nextSnapshot = .cursorWithGrokBot(fingerprint: "aaa", cursorPercent: 10, grokBotPercent: 80)
+        grok.nextError = .networkFailure
+
+        await service.performRefresh()
+
+        XCTAssertEqual(service.state(id: "cursor")?.snapshot?.buckets.first { $0.id == .grokBotWeekly }?.percentUsed, 80)
+        XCTAssertNil(service.state(id: "cursor")?.error)
+        XCTAssertEqual(service.state(id: "grok")?.error, .networkFailure)
+    }
+
+    @MainActor
+    func testPreviousCursorAccountGrokBotIsNotShownAfterSwitchFailure() async {
+        let cursor = MockUsageProvider()
+        let service = RefreshService(providers: [cursor])
+        cursor.nextSnapshot = .cursorWithGrokBot(fingerprint: "aaa", cursorPercent: 10, grokBotPercent: 80)
+        await service.performRefresh()
+
+        cursor.fingerprint = "bbb"
+        cursor.nextError = .networkFailure
+        await service.performRefresh()
+
+        XCTAssertEqual(service.state(id: "cursor")?.activeFingerprint, "bbb")
+        XCTAssertNil(service.state(id: "cursor")?.snapshot)
+        XCTAssertEqual(service.state(id: "cursor")?.error, .networkFailure)
+    }
 }
 
 private struct FailingUsageHistory: UsageHistoryWriting {
@@ -304,6 +393,49 @@ extension UsageSnapshot {
             ],
             membershipType: "unified",
             limitType: GrokUsageMapper.weeklyPeriodType,
+            totalPercentUsed: nil
+        )
+    }
+
+    static func cursorWithGrokBot(
+        fingerprint: String,
+        cursorPercent: Double,
+        grokBotPercent: Double,
+        capturedAt: Date = Date()
+    ) -> UsageSnapshot {
+        let captured = Date(timeIntervalSince1970: capturedAt.timeIntervalSince1970.rounded())
+        let monthlyStart = captured.addingTimeInterval(-20 * 24 * 3600)
+        let monthlyEnd = captured.addingTimeInterval(10 * 24 * 3600)
+        let weeklyStart = captured.addingTimeInterval(-3 * 24 * 3600)
+        let weeklyEnd = captured.addingTimeInterval(4 * 24 * 3600)
+        return UsageSnapshot(
+            providerID: "cursor",
+            accountFingerprint: fingerprint,
+            capturedAt: captured,
+            cycleStart: monthlyStart,
+            cycleEnd: monthlyEnd,
+            buckets: [
+                UsageBucket(
+                    id: .cursorModels,
+                    meter: .metered(percentUsed: cursorPercent, absolute: nil),
+                    cycleStart: monthlyStart,
+                    cycleEnd: monthlyEnd
+                ),
+                UsageBucket(
+                    id: .otherModels,
+                    meter: .metered(percentUsed: 0, absolute: nil),
+                    cycleStart: monthlyStart,
+                    cycleEnd: monthlyEnd
+                ),
+                UsageBucket(
+                    id: .grokBotWeekly,
+                    meter: .metered(percentUsed: grokBotPercent, absolute: nil),
+                    cycleStart: weeklyStart,
+                    cycleEnd: weeklyEnd
+                ),
+            ],
+            membershipType: "pro_plus",
+            limitType: "user",
             totalPercentUsed: nil
         )
     }

@@ -142,6 +142,78 @@ final class UsageAnalyticsTests: XCTestCase {
         XCTAssertNil(stats.pools[.cursorModels]?.exhaustionAt)
     }
 
+    func testPaceUsesEachBucketsOwnCycle() {
+        let monthlyEnd = now.addingTimeInterval(10 * 3600)
+        let weeklyEnd = now.addingTimeInterval(4 * 3600)
+        let monthlyStart = monthlyEnd.addingTimeInterval(-30 * 24 * 3600)
+        let weeklyStart = weeklyEnd.addingTimeInterval(-7 * 24 * 3600)
+        let hours: [TimeInterval] = [-3, -2, -1, 0]
+        let percents = [10.0, 20.0, 30.0, 40.0]
+        var samples: [UsageSnapshot] = []
+        for index in 0..<4 {
+            samples.append(
+                mixedSnapshot(
+                    at: now.addingTimeInterval(hours[index] * 3600),
+                    cursorPercent: percents[index],
+                    grokBotPercent: percents[index],
+                    monthlyStart: monthlyStart,
+                    monthlyEnd: monthlyEnd,
+                    weeklyStart: weeklyStart,
+                    weeklyEnd: weeklyEnd
+                )
+            )
+        }
+        let stats = UsageAnalytics.stats(from: samples, current: samples[3], now: now, calendar: calendar)
+        let cursor = stats.pools[.cursorModels]
+        let grokBot = stats.pools[.grokBotWeekly]
+        XCTAssertEqual(cursor?.message, .ready)
+        XCTAssertEqual(cursor?.paceRatio ?? 0, 10 / 6, accuracy: 0.0001)
+        XCTAssertEqual(grokBot?.message, .resetsBeforeExhaustion)
+        XCTAssertNil(grokBot?.exhaustionAt)
+    }
+
+    func testSameFingerprintKeepsPoolHistoriesOnSeparateCycles() {
+        let monthlyEnd = now.addingTimeInterval(80 * 3600)
+        let weeklyEnd = now.addingTimeInterval(80 * 3600)
+        let monthlyStart = monthlyEnd.addingTimeInterval(-30 * 24 * 3600)
+        let weeklyStart = weeklyEnd.addingTimeInterval(-7 * 24 * 3600)
+        let otherWeekStart = weeklyStart.addingTimeInterval(-7 * 24 * 3600)
+        let otherWeekEnd = weeklyStart
+
+        let staleGrokBot = mixedSnapshot(
+            at: now.addingTimeInterval(-1800),
+            cursorPercent: 35,
+            grokBotPercent: 90,
+            monthlyStart: monthlyStart,
+            monthlyEnd: monthlyEnd,
+            weeklyStart: otherWeekStart,
+            weeklyEnd: otherWeekEnd
+        )
+        let hours: [TimeInterval] = [-3, -2, -1, 0]
+        let percents = [10.0, 20.0, 30.0, 40.0]
+        var samples = [staleGrokBot]
+        for index in 0..<4 {
+            samples.append(
+                mixedSnapshot(
+                    at: now.addingTimeInterval(hours[index] * 3600),
+                    cursorPercent: percents[index],
+                    grokBotPercent: percents[index],
+                    monthlyStart: monthlyStart,
+                    monthlyEnd: monthlyEnd,
+                    weeklyStart: weeklyStart,
+                    weeklyEnd: weeklyEnd
+                )
+            )
+        }
+        let stats = UsageAnalytics.stats(from: samples, current: samples[4], now: now, calendar: calendar)
+        let grokBot = stats.pools[.grokBotWeekly]
+        let cursor = stats.pools[.cursorModels]
+        let expected = (10.0 / 3600) / (60 / (80 * 3600))
+        XCTAssertEqual(grokBot?.message, .ready)
+        XCTAssertEqual(grokBot?.paceRatio ?? 0, expected, accuracy: 0.001)
+        XCTAssertEqual(cursor?.paceRatio ?? 0, expected, accuracy: 0.001)
+    }
+
     private func snapshot(at date: Date, percent: Double, cycleEnd: Date? = nil) -> UsageSnapshot {
         let end = cycleEnd ?? date.addingTimeInterval(30 * 24 * 3600)
         let start = end.addingTimeInterval(-30 * 24 * 3600)
@@ -153,6 +225,41 @@ final class UsageAnalyticsTests: XCTestCase {
             cycleEnd: end,
             buckets: [
                 UsageBucket(id: .cursorModels, meter: .metered(percentUsed: percent, absolute: nil)),
+            ],
+            membershipType: "pro_plus",
+            limitType: "user",
+            totalPercentUsed: nil
+        )
+    }
+
+    private func mixedSnapshot(
+        at date: Date,
+        cursorPercent: Double,
+        grokBotPercent: Double,
+        monthlyStart: Date,
+        monthlyEnd: Date,
+        weeklyStart: Date,
+        weeklyEnd: Date
+    ) -> UsageSnapshot {
+        UsageSnapshot(
+            providerID: "cursor",
+            accountFingerprint: "aaa",
+            capturedAt: date,
+            cycleStart: monthlyStart,
+            cycleEnd: monthlyEnd,
+            buckets: [
+                UsageBucket(
+                    id: .cursorModels,
+                    meter: .metered(percentUsed: cursorPercent, absolute: nil),
+                    cycleStart: monthlyStart,
+                    cycleEnd: monthlyEnd
+                ),
+                UsageBucket(
+                    id: .grokBotWeekly,
+                    meter: .metered(percentUsed: grokBotPercent, absolute: nil),
+                    cycleStart: weeklyStart,
+                    cycleEnd: weeklyEnd
+                ),
             ],
             membershipType: "pro_plus",
             limitType: "user",

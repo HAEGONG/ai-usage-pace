@@ -3,6 +3,7 @@ import Foundation
 enum UsagePoolID: String, Codable, Sendable {
     case cursorModels
     case otherModels
+    case grokBotWeekly
     case grokWeekly
 
     var title: String {
@@ -11,8 +12,10 @@ enum UsagePoolID: String, Codable, Sendable {
             "Cursor Models"
         case .otherModels:
             "Other Models"
+        case .grokBotWeekly:
+            "Grok Bot"
         case .grokWeekly:
-            "Weekly"
+            "Grok CLI"
         }
     }
 
@@ -22,6 +25,8 @@ enum UsagePoolID: String, Codable, Sendable {
             "C"
         case .otherModels:
             "O"
+        case .grokBotWeekly:
+            "B"
         case .grokWeekly:
             "G"
         }
@@ -46,6 +51,28 @@ enum UsageMeter: Equatable, Sendable {
 struct UsageBucket: Equatable, Sendable {
     let id: UsagePoolID
     let meter: UsageMeter
+    let cycleStart: Date?
+    let cycleEnd: Date?
+
+    init(
+        id: UsagePoolID,
+        meter: UsageMeter,
+        cycleStart: Date? = nil,
+        cycleEnd: Date? = nil
+    ) {
+        self.id = id
+        self.meter = meter
+        self.cycleStart = cycleStart
+        self.cycleEnd = cycleEnd
+    }
+
+    func cycleStart(in snapshot: UsageSnapshot) -> Date? {
+        cycleStart ?? snapshot.cycleStart
+    }
+
+    func cycleEnd(in snapshot: UsageSnapshot) -> Date? {
+        cycleEnd ?? snapshot.cycleEnd
+    }
 }
 
 struct UsageSnapshot: Equatable, Sendable {
@@ -58,6 +85,78 @@ struct UsageSnapshot: Equatable, Sendable {
     let membershipType: String?
     let limitType: String?
     let totalPercentUsed: Double?
+    let poolErrors: [UsagePoolID: AppError]
+
+    init(
+        providerID: String,
+        accountFingerprint: String,
+        capturedAt: Date,
+        cycleStart: Date?,
+        cycleEnd: Date?,
+        buckets: [UsageBucket],
+        membershipType: String?,
+        limitType: String?,
+        totalPercentUsed: Double?,
+        poolErrors: [UsagePoolID: AppError] = [:]
+    ) {
+        self.providerID = providerID
+        self.accountFingerprint = accountFingerprint
+        self.capturedAt = capturedAt
+        self.cycleStart = cycleStart
+        self.cycleEnd = cycleEnd
+        self.buckets = buckets
+        self.membershipType = membershipType
+        self.limitType = limitType
+        self.totalPercentUsed = totalPercentUsed
+        self.poolErrors = poolErrors
+    }
+
+    func appending(_ bucket: UsageBucket) -> UsageSnapshot {
+        UsageSnapshot(
+            providerID: providerID,
+            accountFingerprint: accountFingerprint,
+            capturedAt: capturedAt,
+            cycleStart: cycleStart,
+            cycleEnd: cycleEnd,
+            buckets: buckets + [bucket],
+            membershipType: membershipType,
+            limitType: limitType,
+            totalPercentUsed: totalPercentUsed,
+            poolErrors: poolErrors
+        )
+    }
+
+    func withPoolError(_ pool: UsagePoolID, _ error: AppError) -> UsageSnapshot {
+        var errors = poolErrors
+        errors[pool] = error
+        return UsageSnapshot(
+            providerID: providerID,
+            accountFingerprint: accountFingerprint,
+            capturedAt: capturedAt,
+            cycleStart: cycleStart,
+            cycleEnd: cycleEnd,
+            buckets: buckets,
+            membershipType: membershipType,
+            limitType: limitType,
+            totalPercentUsed: totalPercentUsed,
+            poolErrors: errors
+        )
+    }
+
+    func withoutPoolErrors() -> UsageSnapshot {
+        UsageSnapshot(
+            providerID: providerID,
+            accountFingerprint: accountFingerprint,
+            capturedAt: capturedAt,
+            cycleStart: cycleStart,
+            cycleEnd: cycleEnd,
+            buckets: buckets,
+            membershipType: membershipType,
+            limitType: limitType,
+            totalPercentUsed: totalPercentUsed,
+            poolErrors: [:]
+        )
+    }
 }
 
 extension UsageBucket {

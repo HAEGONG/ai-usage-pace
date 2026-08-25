@@ -6,6 +6,7 @@ final class HTTPClientAllowlistTests: XCTestCase {
         XCTAssertThrowsError(try AllowlistedHTTPClient.validate(url: URL(string: "http://cursor.com/api/usage-summary")))
         XCTAssertThrowsError(try AllowlistedHTTPClient.validate(url: URL(string: "https://example.com")))
         XCTAssertNoThrow(try AllowlistedHTTPClient.validate(url: URL(string: "https://cursor.com/api/usage-summary")))
+        XCTAssertNoThrow(try AllowlistedHTTPClient.validate(url: URL(string: "https://cursor.com/api/dashboard/get-sand-usage-status")))
         XCTAssertNoThrow(try AllowlistedHTTPClient.validate(url: URL(string: "https://cli-chat-proxy.grok.com/v1/billing?format=credits")))
     }
 
@@ -20,6 +21,12 @@ final class HTTPClientAllowlistTests: XCTestCase {
         XCTAssertNil(
             RedirectHostGuard.acceptedRedirect(
                 from: URLRequest(url: URL(string: "https://evil.example/steal")!),
+                allowedHosts: allowed
+            )
+        )
+        XCTAssertNotNil(
+            RedirectHostGuard.acceptedRedirect(
+                from: URLRequest(url: URL(string: "https://cursor.com/api/dashboard/get-sand-usage-status")!),
                 allowedHosts: allowed
             )
         )

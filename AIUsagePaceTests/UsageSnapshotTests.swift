@@ -72,6 +72,25 @@ final class UsageSnapshotTests: XCTestCase {
             totalPercentUsed: nil
         )
         XCTAssertEqual(usage.menuBarTitle, "G 42.5%")
+        XCTAssertEqual(UsagePoolID.grokWeekly.title, "Grok CLI")
+    }
+
+    func testMenuBarUsesGrokBotPrefix() {
+        let usage = UsageSnapshot(
+            providerID: "cursor",
+            accountFingerprint: "aaa",
+            capturedAt: Date(timeIntervalSince1970: 1_700_000_000),
+            cycleStart: nil,
+            cycleEnd: nil,
+            buckets: [
+                UsageBucket(id: .grokBotWeekly, meter: .metered(percentUsed: 12, absolute: nil)),
+            ],
+            membershipType: "pro_plus",
+            limitType: "user",
+            totalPercentUsed: nil
+        )
+        XCTAssertEqual(usage.menuBarTitle, "B 12%")
+        XCTAssertEqual(UsagePoolID.grokBotWeekly.title, "Grok Bot")
     }
 
     func testMenuBarAcrossProvidersPrefersHigherPercentWhenPaceIsUnknown() {

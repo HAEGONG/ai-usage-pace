@@ -25,16 +25,21 @@ enum GrokUsageMapper {
             throw AppError.usageUnavailable
         }
 
+        let cycleStart = try parseCycleDate(config.currentPeriod?.start ?? config.billingPeriodStart)
+        let cycleEnd = try parseCycleDate(config.currentPeriod?.end ?? config.billingPeriodEnd)
+
         return UsageSnapshot(
             providerID: providerID,
             accountFingerprint: session.accountFingerprint,
             capturedAt: capturedAt,
-            cycleStart: try parseCycleDate(config.currentPeriod?.start ?? config.billingPeriodStart),
-            cycleEnd: try parseCycleDate(config.currentPeriod?.end ?? config.billingPeriodEnd),
+            cycleStart: cycleStart,
+            cycleEnd: cycleEnd,
             buckets: [
                 UsageBucket(
                     id: .grokWeekly,
-                    meter: .metered(percentUsed: percentUsed, absolute: nil)
+                    meter: .metered(percentUsed: percentUsed, absolute: nil),
+                    cycleStart: cycleStart,
+                    cycleEnd: cycleEnd
                 ),
             ],
             membershipType: config.isUnifiedBillingUser == true ? "unified" : nil,

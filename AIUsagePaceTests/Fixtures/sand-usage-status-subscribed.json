@@ -1,0 +1,12 @@
+{
+  "currentPeriodStart": "2026-08-20T00:00:00Z",
+  "usagePercent": 0,
+  "hasAvailableUsage": true,
+  "hasNonZeroIncludedLimit": true,
+  "grokPlanLabel": "Grok Bot Plan",
+  "onDemandSettings": {
+    "visible": true,
+    "eligible": true,
+    "dashboardUrl": "https://cursor.com/dashboard/spending"
+  }
+}
