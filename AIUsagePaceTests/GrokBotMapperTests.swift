@@ -2,7 +2,7 @@ import XCTest
 @testable import AIUsagePace
 
 final class GrokBotMapperTests: XCTestCase {
-    func testSubscribedFixtureMapsWeeklyPercentAndStartWithoutInventingEnd() throws {
+    func testSubscribedFixtureMapsWeeklyPercentWithoutInferredReset() throws {
         let bucket = try XCTUnwrap(GrokBotUsageMapper.bucket(from: try decodeFixture("sand-usage-status-subscribed")))
 
         XCTAssertEqual(bucket.id, .grokBotWeekly)
@@ -10,6 +10,18 @@ final class GrokBotMapperTests: XCTestCase {
         XCTAssertEqual(bucket.cycleStart, isoDate("2026-08-20T00:00:00Z"))
         XCTAssertNil(bucket.cycleEnd)
         XCTAssertNil(absoluteUsage(bucket))
+    }
+
+    func testExplicitResetIsUsedWhenPresent() throws {
+        let response = GrokBotUsageStatusResponse(
+            currentPeriodStart: "2026-08-20T00:00:00Z",
+            nextResetTimestampUtc: "2026-08-30T00:00:00Z",
+            usagePercent: 1,
+            hasNonZeroIncludedLimit: true
+        )
+        let bucket = try XCTUnwrap(GrokBotUsageMapper.bucket(from: response))
+        XCTAssertEqual(bucket.cycleStart, isoDate("2026-08-20T00:00:00Z"))
+        XCTAssertEqual(bucket.cycleEnd, isoDate("2026-08-30T00:00:00Z"))
     }
 
     func testResetFixtureMapsWeeklyStartAndEnd() throws {
@@ -108,6 +120,8 @@ final class GrokBotMapperTests: XCTestCase {
         )
         let bucket = try XCTUnwrap(GrokBotUsageMapper.bucket(from: response))
         XCTAssertEqual(percentUsed(bucket), 0)
+        XCTAssertNil(bucket.cycleStart)
+        XCTAssertNil(bucket.cycleEnd)
     }
 
     private func decodeFixture(_ name: String) throws -> GrokBotUsageStatusResponse {

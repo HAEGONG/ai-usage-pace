@@ -20,7 +20,7 @@ Cursor와 Grok CLI 중 한쪽에 로그인하지 않았더라도, 로그인된 �
 
 - Cursor의 Team, Enterprise, Business 요금제와 `limitType: team` 또는 `unlimited`인 계정은 지원하지 않습니다.
 - Cursor Start처럼 Cursor Models 풀만 제공하는 응답은 검증용 픽스처를 확보하기 전까지 지원하지 않습니다.
-- Grok Bot에서 `hasNonZeroIncludedLimit`가 `true`가 아닌 계정, `includedLimitZero`가 `true`인 응답, `usesPooledEnterpriseAllowance`가 `true`인 응답은 표시하지 않습니다. 이 앱이 확인한 가입 계정 응답에는 `nextResetTimestampUtc`가 없었습니다. 이 필드가 없으면 Grok Bot 사용률은 표시하지만 해당 풀의 종료 시각과 pace는 계산하지 않습니다.
+- Grok Bot에서 `hasNonZeroIncludedLimit`가 `true`가 아닌 계정, `includedLimitZero`가 `true`인 응답, `usesPooledEnterpriseAllowance`가 `true`인 응답은 표시하지 않습니다. `nextResetTimestampUtc`가 있으면 그 시각을 주간 종료로 사용하고, 없으면 Reset을 표시하지 않습니다. 시작 시각으로부터 7일을 추정하지 않습니다.
 - 주간 단위가 아닌 Grok CLI 사용 기간과 xAI Console의 선불(prepaid) 사용량 및 Management API는 지원하지 않습니다.
 - 앱 내 로그인 화면과 Mac App Store 배포는 지원하지 않습니다.
 

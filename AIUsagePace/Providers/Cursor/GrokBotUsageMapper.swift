@@ -15,11 +15,14 @@ enum GrokBotUsageMapper {
             throw AppError.usageUnavailable
         }
 
+        let cycleStart = try parseCycleDate(response.currentPeriodStart)
+        let cycleEnd = try parseCycleDate(response.nextResetTimestampUtc)
+
         return UsageBucket(
             id: .grokBotWeekly,
             meter: .metered(percentUsed: percentUsed, absolute: nil),
-            cycleStart: try parseCycleDate(response.currentPeriodStart),
-            cycleEnd: try parseCycleDate(response.nextResetTimestampUtc)
+            cycleStart: cycleStart,
+            cycleEnd: cycleEnd
         )
     }
 
