@@ -1,5 +1,7 @@
 # AI Usage Pace
 
+한국어 | [English](README.en.md)
+
 AI Usage Pace는 Cursor, Grok, ChatGPT(Codex)의 사용량을 macOS 메뉴 막대에서 확인할 수 있는 앱입니다. 사용 패턴을 분석하여 현재 사용 속도와 예상 소진 시점도 함께 보여 줍니다.
 
 ## 주요 기능
