@@ -87,22 +87,25 @@ final class RefreshService: ObservableObject {
     func performRefresh() async {
         defer { inFlightTask = nil }
 
-        var anySuccess = false
-        var anyNetworkFailure = false
-
-        for provider in providers {
-            let outcome = await refreshProvider(provider)
-            if outcome == .success {
-                anySuccess = true
-            } else if outcome == .networkFailure {
-                anyNetworkFailure = true
+        // Start every provider request concurrently so a slow or timing-out
+        // provider does not delay the others; each result is applied to its own
+        // provider state on the MainActor as it completes.
+        let outcomes = await withTaskGroup(of: ProviderRefreshOutcome.self) { group in
+            for provider in providers {
+                group.addTask { await self.refreshProvider(provider) }
             }
+            var collected: [ProviderRefreshOutcome] = []
+            for await outcome in group {
+                collected.append(outcome)
+            }
+            return collected
         }
 
-        if anySuccess {
-            backoffInterval = 0
-            scheduleNextRefresh(after: Self.defaultRefreshInterval)
-        } else if anyNetworkFailure {
+        // A network failure on any provider triggers a fast backoff retry, even
+        // when another provider succeeded. Otherwise a provider that keeps
+        // failing (while another keeps succeeding) would never be retried before
+        // the next full interval.
+        if outcomes.contains(.networkFailure) {
             scheduleNextRefresh(after: nextBackoffInterval())
         } else {
             backoffInterval = 0
@@ -117,9 +120,9 @@ final class RefreshService: ObservableObject {
     }
 
     private func refreshProvider(_ provider: any UsageProvider) async -> ProviderRefreshOutcome {
-        let fingerprint: String
+        let session: ProviderSession
         do {
-            fingerprint = try await provider.loadFingerprint()
+            session = try await provider.loadSession()
         } catch let appError as AppError {
             applyIdentityFailure(providerID: provider.id, error: appError)
             return appError == .networkFailure ? .networkFailure : .other
@@ -128,10 +131,11 @@ final class RefreshService: ObservableObject {
             return .other
         }
 
+        let fingerprint = session.accountFingerprint
         updateIdentity(providerID: provider.id, fingerprint: fingerprint)
 
         do {
-            let snapshot = try await provider.fetchUsage()
+            let snapshot = try await session.fetchUsage()
             let key = successKey(providerID: provider.id, fingerprint: snapshot.accountFingerprint)
             lastSuccessByKey[key] = snapshot
             updateState(providerID: provider.id) { state in
