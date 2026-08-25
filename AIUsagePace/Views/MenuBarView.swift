@@ -81,14 +81,22 @@ struct MenuBarView: View {
             }
 
             if let lastUpdated = state.lastUpdated {
-                Text(verbatim: AppLocalization.format(
-                    LocalizationKey.menuUpdated,
-                    locale: locale,
-                    arguments: [AppLocalization.relativeDate(lastUpdated, locale: locale)],
-                    defaultValue: "Updated %@"
-                ))
+                TimelineView(.periodic(from: lastUpdated, by: 1)) { context in
+                    Text(verbatim: AppLocalization.format(
+                        LocalizationKey.menuUpdated,
+                        locale: locale,
+                        arguments: [
+                            AppLocalization.relativeDate(
+                                lastUpdated,
+                                relativeTo: context.date,
+                                locale: locale
+                            )
+                        ],
+                        defaultValue: "Updated %@"
+                    ))
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                }
             }
         }
     }

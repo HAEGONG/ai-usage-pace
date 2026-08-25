@@ -197,4 +197,31 @@ final class AppLanguageTests: XCTestCase {
             "42.5%"
         )
     }
+
+    func testRelativeDateAdvancesWithTheReferenceDate() {
+        let korean = Locale(identifier: "ko")
+        let now = Date(timeIntervalSince1970: 1_777_000_000)
+        XCTAssertEqual(
+            AppLocalization.relativeDate(now.addingTimeInterval(-5), relativeTo: now, locale: korean),
+            "5초 전"
+        )
+        XCTAssertEqual(
+            AppLocalization.relativeDate(now.addingTimeInterval(-59), relativeTo: now, locale: korean),
+            "59초 전"
+        )
+        XCTAssertEqual(
+            AppLocalization.relativeDate(now.addingTimeInterval(-120), relativeTo: now, locale: korean),
+            "2분 전"
+        )
+        XCTAssertEqual(
+            AppLocalization.format(
+                LocalizationKey.menuUpdated,
+                locale: korean,
+                arguments: [
+                    AppLocalization.relativeDate(now.addingTimeInterval(-5), relativeTo: now, locale: korean)
+                ]
+            ),
+            "5초 전 업데이트"
+        )
+    }
 }
