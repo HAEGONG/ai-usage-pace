@@ -1,0 +1,510 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B101 /* UsageMenuBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F101 /* UsageMenuBarApp.swift */; };
+		B102 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F102 /* AppError.swift */; };
+		B103 /* UsageSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F103 /* UsageSnapshot.swift */; };
+		B104 /* UsageStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = F104 /* UsageStats.swift */; };
+		B105 /* UsageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F105 /* UsageProvider.swift */; };
+		B106 /* CursorAuthReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F106 /* CursorAuthReader.swift */; };
+		B107 /* CursorAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F107 /* CursorAPIClient.swift */; };
+		B108 /* CursorModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F108 /* CursorModels.swift */; };
+		B109 /* CursorUsageMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F109 /* CursorUsageMapper.swift */; };
+		B110 /* CursorUsageProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F110 /* CursorUsageProvider.swift */; };
+		B111 /* UsageHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F111 /* UsageHistoryStore.swift */; };
+		B112 /* UsageAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = F112 /* UsageAnalytics.swift */; };
+		B113 /* RefreshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F113 /* RefreshService.swift */; };
+		B114 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F114 /* MenuBarView.swift */; };
+		B115 /* ProviderUsageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F115 /* ProviderUsageView.swift */; };
+		B116 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F116 /* SettingsView.swift */; };
+		B117 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F117 /* HTTPClient.swift */; };
+		B118 /* SQLiteReadonly.swift in Sources */ = {isa = PBXBuildFile; fileRef = F118 /* SQLiteReadonly.swift */; };
+		B201 /* CursorAuthReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F201 /* CursorAuthReaderTests.swift */; };
+		B202 /* RefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F202 /* RefreshServiceTests.swift */; };
+		B203 /* HTTPClientAllowlistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F203 /* HTTPClientAllowlistTests.swift */; };
+		B204 /* CursorMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F204 /* CursorMapperTests.swift */; };
+		B205 /* usage-summary-pro-plus.json in Resources */ = {isa = PBXBuildFile; fileRef = F205 /* usage-summary-pro-plus.json */; };
+		B206 /* UsageSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F206 /* UsageSnapshotTests.swift */; };
+		B207 /* HistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F207 /* HistoryStoreTests.swift */; };
+		B208 /* UsageAnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F208 /* UsageAnalyticsTests.swift */; };
+		B209 /* CursorAPIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F209 /* CursorAPIClientTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		P001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = P000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TAPP;
+			remoteInfo = AIUsagePace;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		RAPP /* AIUsagePace.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AIUsagePace.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		RTEST /* AIUsagePaceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AIUsagePaceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F101 /* UsageMenuBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageMenuBarApp.swift; sourceTree = "<group>"; };
+		F102 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
+		F103 /* UsageSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageSnapshot.swift; sourceTree = "<group>"; };
+		F104 /* UsageStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageStats.swift; sourceTree = "<group>"; };
+		F105 /* UsageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageProvider.swift; sourceTree = "<group>"; };
+		F106 /* CursorAuthReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAuthReader.swift; sourceTree = "<group>"; };
+		F107 /* CursorAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAPIClient.swift; sourceTree = "<group>"; };
+		F108 /* CursorModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorModels.swift; sourceTree = "<group>"; };
+		F109 /* CursorUsageMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorUsageMapper.swift; sourceTree = "<group>"; };
+		F110 /* CursorUsageProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorUsageProvider.swift; sourceTree = "<group>"; };
+		F111 /* UsageHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageHistoryStore.swift; sourceTree = "<group>"; };
+		F112 /* UsageAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageAnalytics.swift; sourceTree = "<group>"; };
+		F113 /* RefreshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshService.swift; sourceTree = "<group>"; };
+		F114 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		F115 /* ProviderUsageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderUsageView.swift; sourceTree = "<group>"; };
+		F116 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F117 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
+		F118 /* SQLiteReadonly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteReadonly.swift; sourceTree = "<group>"; };
+		F119 /* AIUsagePace.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AIUsagePace.entitlements; sourceTree = "<group>"; };
+		F201 /* CursorAuthReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAuthReaderTests.swift; sourceTree = "<group>"; };
+		F202 /* RefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshServiceTests.swift; sourceTree = "<group>"; };
+		F203 /* HTTPClientAllowlistTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientAllowlistTests.swift; sourceTree = "<group>"; };
+		F204 /* CursorMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorMapperTests.swift; sourceTree = "<group>"; };
+		F205 /* usage-summary-pro-plus.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "usage-summary-pro-plus.json"; sourceTree = "<group>"; };
+		F206 /* UsageSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageSnapshotTests.swift; sourceTree = "<group>"; };
+		F207 /* HistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStoreTests.swift; sourceTree = "<group>"; };
+		F208 /* UsageAnalyticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageAnalyticsTests.swift; sourceTree = "<group>"; };
+		F209 /* CursorAPIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorAPIClientTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FWAPP /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FWTEST /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXResourcesBuildPhase section */
+		RESTEST /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B205 /* usage-summary-pro-plus.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXGroup section */
+		G000 = {
+			isa = PBXGroup;
+			children = (
+				GAPP /* AIUsagePace */,
+				GTEST /* AIUsagePaceTests */,
+				GPROD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		GPROD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				RAPP /* AIUsagePace.app */,
+				RTEST /* AIUsagePaceTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		GAPP /* AIUsagePace */ = {
+			isa = PBXGroup;
+			children = (
+				F119 /* AIUsagePace.entitlements */,
+				GAPPAPP /* App */,
+				GMODELS /* Models */,
+				GPROV /* Providers */,
+				GSERV /* Services */,
+				GVIEWS /* Views */,
+				GUTIL /* Utilities */,
+			);
+			path = AIUsagePace;
+			sourceTree = "<group>";
+		};
+		GAPPAPP /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F101 /* UsageMenuBarApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		GMODELS /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F102 /* AppError.swift */,
+				F103 /* UsageSnapshot.swift */,
+				F104 /* UsageStats.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		GPROV /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				F105 /* UsageProvider.swift */,
+				GCURSOR /* Cursor */,
+			);
+			path = Providers;
+			sourceTree = "<group>";
+		};
+		GCURSOR /* Cursor */ = {
+			isa = PBXGroup;
+			children = (
+				F106 /* CursorAuthReader.swift */,
+				F107 /* CursorAPIClient.swift */,
+				F108 /* CursorModels.swift */,
+				F109 /* CursorUsageMapper.swift */,
+				F110 /* CursorUsageProvider.swift */,
+			);
+			path = Cursor;
+			sourceTree = "<group>";
+		};
+		GSERV /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F111 /* UsageHistoryStore.swift */,
+				F112 /* UsageAnalytics.swift */,
+				F113 /* RefreshService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		GVIEWS /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F114 /* MenuBarView.swift */,
+				F115 /* ProviderUsageView.swift */,
+				F116 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		GUTIL /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				F117 /* HTTPClient.swift */,
+				F118 /* SQLiteReadonly.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		GTEST /* AIUsagePaceTests */ = {
+			isa = PBXGroup;
+			children = (
+				GFIXT /* Fixtures */,
+				F201 /* CursorAuthReaderTests.swift */,
+				F202 /* RefreshServiceTests.swift */,
+				F203 /* HTTPClientAllowlistTests.swift */,
+				F204 /* CursorMapperTests.swift */,
+				F206 /* UsageSnapshotTests.swift */,
+				F207 /* HistoryStoreTests.swift */,
+				F208 /* UsageAnalyticsTests.swift */,
+				F209 /* CursorAPIClientTests.swift */,
+			);
+			path = AIUsagePaceTests;
+			sourceTree = "<group>";
+		};
+		GFIXT /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				F205 /* usage-summary-pro-plus.json */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		TAPP /* AIUsagePace */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CAPP /* Build configuration list for PBXNativeTarget "AIUsagePace" */;
+			buildPhases = (
+				SRCAPP /* Sources */,
+				FWAPP /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AIUsagePace;
+			productName = AIUsagePace;
+			productReference = RAPP /* AIUsagePace.app */;
+			productType = "com.apple.product-type.application";
+		};
+		TTEST /* AIUsagePaceTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CTEST /* Build configuration list for PBXNativeTarget "AIUsagePaceTests" */;
+			buildPhases = (
+				SRCTEST /* Sources */,
+				FWTEST /* Frameworks */,
+				RESTEST /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D001 /* PBXTargetDependency */,
+			);
+			name = AIUsagePaceTests;
+			productName = AIUsagePaceTests;
+			productReference = RTEST /* AIUsagePaceTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		P000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					TAPP = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					TTEST = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = TAPP;
+					};
+				};
+			};
+			buildConfigurationList = CPROJ /* Build configuration list for PBXProject "AIUsagePace" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = G000;
+			productRefGroup = GPROD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				TAPP /* AIUsagePace */,
+				TTEST /* AIUsagePaceTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		SRCAPP /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B101 /* UsageMenuBarApp.swift in Sources */,
+				B102 /* AppError.swift in Sources */,
+				B103 /* UsageSnapshot.swift in Sources */,
+				B104 /* UsageStats.swift in Sources */,
+				B105 /* UsageProvider.swift in Sources */,
+				B106 /* CursorAuthReader.swift in Sources */,
+				B107 /* CursorAPIClient.swift in Sources */,
+				B108 /* CursorModels.swift in Sources */,
+				B109 /* CursorUsageMapper.swift in Sources */,
+				B110 /* CursorUsageProvider.swift in Sources */,
+				B111 /* UsageHistoryStore.swift in Sources */,
+				B112 /* UsageAnalytics.swift in Sources */,
+				B113 /* RefreshService.swift in Sources */,
+				B114 /* MenuBarView.swift in Sources */,
+				B115 /* ProviderUsageView.swift in Sources */,
+				B116 /* SettingsView.swift in Sources */,
+				B117 /* HTTPClient.swift in Sources */,
+				B118 /* SQLiteReadonly.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		SRCTEST /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B201 /* CursorAuthReaderTests.swift in Sources */,
+				B202 /* RefreshServiceTests.swift in Sources */,
+				B203 /* HTTPClientAllowlistTests.swift in Sources */,
+				B204 /* CursorMapperTests.swift in Sources */,
+				B206 /* UsageSnapshotTests.swift in Sources */,
+				B207 /* HistoryStoreTests.swift in Sources */,
+				B208 /* UsageAnalyticsTests.swift in Sources */,
+				B209 /* CursorAPIClientTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = TAPP /* AIUsagePace */;
+			targetProxy = P001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		DBGPROJ /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		RELPROJ /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		DBGAPP /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AIUsagePace/AIUsagePace.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Usage Pace";
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.haegong.AIUsagePace;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Debug;
+		};
+		RELAPP /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = AIUsagePace/AIUsagePace.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Usage Pace";
+				INFOPLIST_KEY_LSUIElement = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.haegong.AIUsagePace;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+			};
+			name = Release;
+		};
+		DBGTEST /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.haegong.AIUsagePaceTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AIUsagePace.app/Contents/MacOS/AIUsagePace";
+			};
+			name = Debug;
+		};
+		RELTEST /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.haegong.AIUsagePaceTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AIUsagePace.app/Contents/MacOS/AIUsagePace";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CAPP /* Build configuration list for PBXNativeTarget "AIUsagePace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBGAPP /* Debug */,
+				RELAPP /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CTEST /* Build configuration list for PBXNativeTarget "AIUsagePaceTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBGTEST /* Debug */,
+				RELTEST /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CPROJ /* Build configuration list for PBXProject "AIUsagePace" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBGPROJ /* Debug */,
+				RELPROJ /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = P000 /* Project object */;
+}
