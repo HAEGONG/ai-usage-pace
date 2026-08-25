@@ -163,6 +163,6 @@ private struct PoolUsageRow: View {
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.trailing)
         }
-        .font(.caption)
+        .font(.body)
     }
 }

@@ -31,7 +31,7 @@ struct MenuBarView: View {
             }
         }
         .padding(12)
-        .frame(minWidth: 260)
+        .frame(minWidth: 300)
     }
 
     @ViewBuilder
@@ -82,7 +82,7 @@ struct MenuBarView: View {
                     arguments: [AppLocalization.relativeDate(lastUpdated, locale: locale)],
                     defaultValue: "Updated %@"
                 ))
-                    .font(.caption)
+                    .font(.callout)
                     .foregroundStyle(.secondary)
             }
         }
