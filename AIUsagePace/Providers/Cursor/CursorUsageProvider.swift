@@ -16,23 +16,23 @@ struct CursorUsageProvider: UsageProvider {
         self.grokBotClient = grokBotClient
     }
 
-    func loadFingerprint() async throws -> String {
-        try await sessionLoader.loadSession().accountFingerprint
-    }
-
-    func fetchUsage() async throws -> UsageSnapshot {
+    func loadSession() async throws -> ProviderSession {
         let session = try await sessionLoader.loadSession()
-        var snapshot = try await apiClient.fetchSnapshot(session: session)
-        do {
-            let status = try await grokBotClient.fetchStatus(session: session)
-            if let bucket = try GrokBotUsageMapper.bucket(from: status) {
-                snapshot = snapshot.appending(bucket)
+        let apiClient = apiClient
+        let grokBotClient = grokBotClient
+        return ProviderSession(accountFingerprint: session.accountFingerprint) {
+            var snapshot = try await apiClient.fetchSnapshot(session: session)
+            do {
+                let status = try await grokBotClient.fetchStatus(session: session)
+                if let bucket = try GrokBotUsageMapper.bucket(from: status) {
+                    snapshot = snapshot.appending(bucket)
+                }
+            } catch let error as AppError {
+                snapshot = snapshot.withPoolError(.grokBotWeekly, error)
+            } catch {
+                snapshot = snapshot.withPoolError(.grokBotWeekly, .networkFailure)
             }
-        } catch let error as AppError {
-            snapshot = snapshot.withPoolError(.grokBotWeekly, error)
-        } catch {
-            snapshot = snapshot.withPoolError(.grokBotWeekly, .networkFailure)
+            return snapshot
         }
-        return snapshot
     }
 }

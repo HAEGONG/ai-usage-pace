@@ -5,7 +5,7 @@ final class CursorUsageProviderTests: XCTestCase {
     func testGrokBotUsesTheSameCursorFingerprint() async throws {
         let loader = CountingSessionLoader(session: .accountA)
         let provider = makeProvider(loader: loader, grokBotStatus: 200, grokBotBody: subscribedGrokBotBody())
-        let snapshot = try await provider.fetchUsage()
+        let snapshot = try await fetchUsage(from: provider)
 
         XCTAssertEqual(snapshot.accountFingerprint, CursorSession.accountA.accountFingerprint)
         XCTAssertEqual(snapshot.buckets.map(\.id), [.cursorModels, .otherModels, .grokBotWeekly])
@@ -17,7 +17,7 @@ final class CursorUsageProviderTests: XCTestCase {
     func testFetchUsageReadsTheCursorSessionOnce() async throws {
         let loader = CountingSessionLoader(session: .accountA)
         let provider = makeProvider(loader: loader, grokBotStatus: 200, grokBotBody: subscribedGrokBotBody())
-        _ = try await provider.fetchUsage()
+        _ = try await fetchUsage(from: provider)
         XCTAssertEqual(loader.count, 1)
     }
 
@@ -27,7 +27,7 @@ final class CursorUsageProviderTests: XCTestCase {
             grokBotStatus: 401,
             grokBotBody: Data()
         )
-        let snapshot = try await provider.fetchUsage()
+        let snapshot = try await fetchUsage(from: provider)
 
         XCTAssertEqual(snapshot.buckets.map(\.id), [.cursorModels, .otherModels])
         XCTAssertEqual(snapshot.poolErrors[.grokBotWeekly], .authenticationExpired)
@@ -40,7 +40,7 @@ final class CursorUsageProviderTests: XCTestCase {
             grokBotStatus: 503,
             grokBotBody: Data()
         )
-        let snapshot = try await provider.fetchUsage()
+        let snapshot = try await fetchUsage(from: provider)
         XCTAssertEqual(snapshot.buckets.map(\.id), [.cursorModels, .otherModels])
         XCTAssertEqual(snapshot.poolErrors[.grokBotWeekly], .networkFailure)
     }
@@ -54,7 +54,7 @@ final class CursorUsageProviderTests: XCTestCase {
             grokBotStatus: 200,
             grokBotBody: body
         )
-        let snapshot = try await provider.fetchUsage()
+        let snapshot = try await fetchUsage(from: provider)
         XCTAssertEqual(snapshot.buckets.map(\.id), [.cursorModels, .otherModels])
         XCTAssertTrue(snapshot.poolErrors.isEmpty)
     }
@@ -68,7 +68,7 @@ final class CursorUsageProviderTests: XCTestCase {
             grokBotStatus: 200,
             grokBotBody: body
         )
-        let snapshot = try await provider.fetchUsage()
+        let snapshot = try await fetchUsage(from: provider)
         XCTAssertEqual(snapshot.buckets.map(\.id), [.cursorModels, .otherModels])
         XCTAssertEqual(snapshot.poolErrors[.grokBotWeekly], .usageUnavailable)
     }
@@ -79,7 +79,7 @@ final class CursorUsageProviderTests: XCTestCase {
             grokBotStatus: 200,
             grokBotBody: resetGrokBotBody()
         )
-        let snapshot = try await provider.fetchUsage()
+        let snapshot = try await fetchUsage(from: provider)
         let cursor = try XCTUnwrap(snapshot.buckets.first { $0.id == .cursorModels })
         let grokBot = try XCTUnwrap(snapshot.buckets.first { $0.id == .grokBotWeekly })
         XCTAssertEqual(cursor.cycleStart, snapshot.cycleStart)
@@ -104,6 +104,11 @@ final class CursorUsageProviderTests: XCTestCase {
             apiClient: CursorAPIClient(http: http),
             grokBotClient: GrokBotAPIClient(http: http)
         )
+    }
+
+    private func fetchUsage(from provider: CursorUsageProvider) async throws -> UsageSnapshot {
+        let session = try await provider.loadSession()
+        return try await session.fetchUsage()
     }
 
     private func usageSummaryBody() -> Data {

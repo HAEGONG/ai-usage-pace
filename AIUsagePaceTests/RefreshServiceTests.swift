@@ -180,7 +180,7 @@ final class RefreshServiceTests: XCTestCase {
     }
 
     @MainActor
-    func testPartialNetworkFailureDoesNotBackOffWhenOtherProviderSucceeds() async {
+    func testPartialNetworkFailureBacksOffEvenWhenOtherProviderSucceeds() async {
         let cursor = MockUsageProvider()
         let grok = MockUsageProvider(id: "grok", displayName: "Grok", fingerprint: "ggg")
         let service = RefreshService(providers: [cursor, grok])
@@ -189,9 +189,20 @@ final class RefreshServiceTests: XCTestCase {
 
         await service.performRefresh()
 
-        XCTAssertEqual(service.scheduledRefreshInterval, RefreshService.defaultRefreshInterval)
+        XCTAssertEqual(service.scheduledRefreshInterval, RefreshService.minimumBackoff)
         XCTAssertEqual(service.state(id: "grok")?.error, .networkFailure)
         XCTAssertNotNil(service.state(id: "cursor")?.snapshot)
+
+        // A repeated partial failure keeps growing the backoff for the failing
+        // provider instead of waiting the full default interval.
+        await service.performRefresh()
+        XCTAssertEqual(service.scheduledRefreshInterval, RefreshService.minimumBackoff * 2)
+
+        // Once no provider reports a network failure, the interval resets.
+        grok.nextError = nil
+        grok.nextSnapshot = .grokStub(fingerprint: "ggg", percent: 30)
+        await service.performRefresh()
+        XCTAssertEqual(service.scheduledRefreshInterval, RefreshService.defaultRefreshInterval)
     }
 
     @MainActor
@@ -316,25 +327,24 @@ private final class MockUsageProvider: UsageProvider, @unchecked Sendable {
         self.delayNanoseconds = delayNanoseconds
     }
 
-    func loadFingerprint() async throws -> String {
+    func loadSession() async throws -> ProviderSession {
         if let fingerprintError {
             throw fingerprintError
         }
-        return fingerprint
-    }
-
-    func fetchUsage() async throws -> UsageSnapshot {
-        fetchCount += 1
-        if delayNanoseconds > 0 {
-            try await Task.sleep(nanoseconds: delayNanoseconds)
+        let fingerprint = fingerprint
+        return ProviderSession(accountFingerprint: fingerprint) { [self] in
+            fetchCount += 1
+            if delayNanoseconds > 0 {
+                try await Task.sleep(nanoseconds: delayNanoseconds)
+            }
+            if let nextError {
+                throw nextError
+            }
+            guard let nextSnapshot else {
+                throw AppError.usageUnavailable
+            }
+            return nextSnapshot
         }
-        if let nextError {
-            throw nextError
-        }
-        guard let nextSnapshot else {
-            throw AppError.usageUnavailable
-        }
-        return nextSnapshot
     }
 }
 

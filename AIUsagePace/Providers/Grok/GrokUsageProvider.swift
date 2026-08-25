@@ -13,12 +13,11 @@ struct GrokUsageProvider: UsageProvider {
         self.apiClient = apiClient
     }
 
-    func loadFingerprint() async throws -> String {
-        try await authReader.loadSession().accountFingerprint
-    }
-
-    func fetchUsage() async throws -> UsageSnapshot {
+    func loadSession() async throws -> ProviderSession {
         let session = try await authReader.loadSession()
-        return try await apiClient.fetchSnapshot(session: session)
+        let apiClient = apiClient
+        return ProviderSession(accountFingerprint: session.accountFingerprint) {
+            try await apiClient.fetchSnapshot(session: session)
+        }
     }
 }
